@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────────
+# Rabbit .gitignore
+# ─────────────────────────────────────────────────────────────────
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Cache
+cache/
+*.cache
+
+# Build
+/dist/
+/build/
+
+# Testing
+/coverage/
+.phpunit.result.cache
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Database
+*.sql
+*.sqlite
+*.db
+
+# Backups
+*.bak
+*.backup
+
+# Documentation build
+/docs/_build/
+
+# Uploads (user content)
+/uploads/*
+!/uploads/.gitkeep
+
+# Local configuration
+local.php
+config.local.php
