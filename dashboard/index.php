@@ -91,13 +91,6 @@
                         </div>
                     </div>
                     
-                    <!-- Expand Toggle -->
-                    <button class="taskbar__expand" aria-label="Expand taskbar">
-                        <svg viewBox="0 0 24 24">
-                            <polyline points="6 9 12 15 18 9"/>
-                        </svg>
-                    </button>
-                    
                     <!-- Theme Toggle -->
                     <button class="theme-toggle" aria-label="Toggle theme">
                         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -164,50 +157,6 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Expanded Panel -->
-            <div class="taskbar__panel">
-                <div class="taskbar__panel-inner">
-                    <div class="quick-actions">
-                        <a href="#" class="quick-action" data-page="apps.php">
-                            <div class="quick-action__icon">
-                                <svg viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="10"/>
-                                    <line x1="12" y1="8" x2="12" y2="16"/>
-                                    <line x1="8" y1="12" x2="16" y2="12"/>
-                                </svg>
-                            </div>
-                            <span class="quick-action__label">New App</span>
-                        </a>
-                        <a href="#" class="quick-action" data-page="api-keys.php">
-                            <div class="quick-action__icon">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
-                                </svg>
-                            </div>
-                            <span class="quick-action__label">API Keys</span>
-                        </a>
-                        <a href="#" class="quick-action" data-page="notifications.php">
-                            <div class="quick-action__icon">
-                                <svg viewBox="0 0 24 24">
-                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                                </svg>
-                            </div>
-                            <span class="quick-action__label">All Notifications</span>
-                        </a>
-                        <a href="#" class="quick-action" data-page="settings.php">
-                            <div class="quick-action__icon">
-                                <svg viewBox="0 0 24 24">
-                                    <circle cx="12" cy="12" r="3"/>
-                                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-                                </svg>
-                            </div>
-                            <span class="quick-action__label">Settings</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
         </header>
 
         <!-- Mobile Menu -->
@@ -247,13 +196,14 @@
                             <rect x="14" y="14" width="7" height="7"/>
                             <rect x="3" y="14" width="7" height="7"/>
                         </svg>
-                        Connected Apps
+                        Apps
                     </a>
-                    <a href="api-keys.php" class="mobile-menu__link">
+                    <a href="connect.php" class="mobile-menu__link">
                         <svg viewBox="0 0 24 24">
-                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                            <polyline points="16 18 22 12 16 6"/>
+                            <polyline points="8 6 2 12 8 18"/>
                         </svg>
-                        API Keys
+                        Connect
                     </a>
                     <a href="settings.php" class="mobile-menu__link">
                         <svg viewBox="0 0 24 24">

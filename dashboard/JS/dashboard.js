@@ -13,34 +13,9 @@
        ───────────────────────────────────────────────────────────────── */
     const Taskbar = {
         element: null,
-        expandBtn: null,
-        isExpanded: false,
         
         init() {
             this.element = document.querySelector('.taskbar');
-            this.expandBtn = document.querySelector('.taskbar__expand');
-            
-            if (!this.element) return;
-            
-            this.bindExpand();
-        },
-        
-        bindExpand() {
-            if (this.expandBtn) {
-                this.expandBtn.addEventListener('click', () => {
-                    this.toggle();
-                });
-            }
-        },
-        
-        toggle() {
-            this.isExpanded = !this.isExpanded;
-            this.element.classList.toggle('is-expanded', this.isExpanded);
-        },
-        
-        collapse() {
-            this.isExpanded = false;
-            this.element.classList.remove('is-expanded');
         }
     };
 

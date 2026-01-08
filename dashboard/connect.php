@@ -112,26 +112,26 @@
                             Copy
                         </button>
                     </div>
-                    <pre class="code-block__content"><code>const sendNotification = async () => {
-  const response = await fetch('https://api.rabbit.io/v1/notify', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer YOUR_API_KEY'
-    },
-    body: JSON.stringify({
-      app: 'your-app-slug',
-      title: 'New Payment Received',
-      body: 'You received a payment of $99.00 from john@example.com',
-      tag: 'payment'  // optional: 'alert', 'info', 'success', etc.
-    })
-  });
+                    <pre class="code-block__content"><code><span class="token keyword">const</span> <span class="token function">sendNotification</span> <span class="token operator">=</span> <span class="token keyword">async</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=></span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> response <span class="token operator">=</span> <span class="token keyword">await</span> <span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'https://api.rabbit.io/v1/notify'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    method<span class="token punctuation">:</span> <span class="token string">'POST'</span><span class="token punctuation">,</span>
+    headers<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">'Content-Type'</span><span class="token punctuation">:</span> <span class="token string">'application/json'</span><span class="token punctuation">,</span>
+      <span class="token string">'Authorization'</span><span class="token punctuation">:</span> <span class="token string">'Bearer YOUR_API_KEY'</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    body<span class="token punctuation">:</span> <span class="token builtin">JSON</span><span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+      app<span class="token punctuation">:</span> <span class="token string">'your-app-slug'</span><span class="token punctuation">,</span>
+      title<span class="token punctuation">:</span> <span class="token string">'New Payment Received'</span><span class="token punctuation">,</span>
+      body<span class="token punctuation">:</span> <span class="token string">'You received a payment of $99.00 from john@example.com'</span><span class="token punctuation">,</span>
+      tag<span class="token punctuation">:</span> <span class="token string">'payment'</span>  <span class="token comment">// optional: 'alert', 'info', 'success', etc.</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
   
-  const data = await response.json();
-  console.log('Notification sent:', data);
-};
+  <span class="token keyword">const</span> data <span class="token operator">=</span> <span class="token keyword">await</span> response<span class="token punctuation">.</span><span class="token function">json</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'Notification sent:'</span><span class="token punctuation">,</span> data<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
 
-sendNotification();</code></pre>
+<span class="token function">sendNotification</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
                 </div>
 
                 <!-- Node.js Example -->
@@ -146,38 +146,38 @@ sendNotification();</code></pre>
                             Copy
                         </button>
                     </div>
-                    <pre class="code-block__content"><code>// Using node-fetch or built-in fetch (Node 18+)
-const RABBIT_API_KEY = process.env.RABBIT_API_KEY;
+                    <pre class="code-block__content"><code><span class="token comment">// Using node-fetch or built-in fetch (Node 18+)</span>
+<span class="token keyword">const</span> RABBIT_API_KEY <span class="token operator">=</span> process<span class="token punctuation">.</span>env<span class="token punctuation">.</span>RABBIT_API_KEY<span class="token punctuation">;</span>
 
-async function sendNotification(notification) {
-  const response = await fetch('https://api.rabbit.io/v1/notify', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${RABBIT_API_KEY}`
-    },
-    body: JSON.stringify({
-      app: notification.app,
-      title: notification.title,
-      body: notification.body,
-      tag: notification.tag || null
-    })
-  });
+<span class="token keyword">async function</span> <span class="token function">sendNotification</span><span class="token punctuation">(</span>notification<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> response <span class="token operator">=</span> <span class="token keyword">await</span> <span class="token function">fetch</span><span class="token punctuation">(</span><span class="token string">'https://api.rabbit.io/v1/notify'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    method<span class="token punctuation">:</span> <span class="token string">'POST'</span><span class="token punctuation">,</span>
+    headers<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">'Content-Type'</span><span class="token punctuation">:</span> <span class="token string">'application/json'</span><span class="token punctuation">,</span>
+      <span class="token string">'Authorization'</span><span class="token punctuation">:</span> <span class="token template-string">`Bearer <span class="token interpolation">${RABBIT_API_KEY}</span>`</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    body<span class="token punctuation">:</span> <span class="token builtin">JSON</span><span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+      app<span class="token punctuation">:</span> notification<span class="token punctuation">.</span>app<span class="token punctuation">,</span>
+      title<span class="token punctuation">:</span> notification<span class="token punctuation">.</span>title<span class="token punctuation">,</span>
+      body<span class="token punctuation">:</span> notification<span class="token punctuation">.</span>body<span class="token punctuation">,</span>
+      tag<span class="token punctuation">:</span> notification<span class="token punctuation">.</span>tag <span class="token operator">||</span> <span class="token keyword">null</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
-  if (!response.ok) {
-    throw new Error(`Rabbit API error: ${response.status}`);
-  }
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>response<span class="token punctuation">.</span>ok<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">throw new</span> <span class="token class-name">Error</span><span class="token punctuation">(</span><span class="token template-string">`Rabbit API error: <span class="token interpolation">${response.status}</span>`</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
 
-  return response.json();
-}
+  <span class="token keyword">return</span> response<span class="token punctuation">.</span><span class="token function">json</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
 
-// Example usage
-sendNotification({
-  app: 'stripe',
-  title: 'New Subscription',
-  body: 'Customer upgraded to Pro plan ($29/mo)',
-  tag: 'success'
-}).then(result => console.log(result));</code></pre>
+<span class="token comment">// Example usage</span>
+<span class="token function">sendNotification</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  app<span class="token punctuation">:</span> <span class="token string">'stripe'</span><span class="token punctuation">,</span>
+  title<span class="token punctuation">:</span> <span class="token string">'New Subscription'</span><span class="token punctuation">,</span>
+  body<span class="token punctuation">:</span> <span class="token string">'Customer upgraded to Pro plan ($29/mo)'</span><span class="token punctuation">,</span>
+  tag<span class="token punctuation">:</span> <span class="token string">'success'</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>result <span class="token operator">=></span> <span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
                 </div>
 
                 <!-- cURL Example -->
@@ -192,15 +192,15 @@ sendNotification({
                             Copy
                         </button>
                     </div>
-                    <pre class="code-block__content"><code>curl -X POST https://api.rabbit.io/v1/notify \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{
+                    <pre class="code-block__content"><code><span class="token function">curl</span> <span class="token flag">-X</span> POST <span class="token url">https://api.rabbit.io/v1/notify</span> <span class="token operator">\</span>
+  <span class="token flag">-H</span> <span class="token string">"Content-Type: application/json"</span> <span class="token operator">\</span>
+  <span class="token flag">-H</span> <span class="token string">"Authorization: Bearer YOUR_API_KEY"</span> <span class="token operator">\</span>
+  <span class="token flag">-d</span> <span class="token string">'{
     "app": "your-app-slug",
     "title": "New Payment Received",
     "body": "You received a payment of $99.00",
     "tag": "payment"
-  }'</code></pre>
+  }'</span></code></pre>
                 </div>
             </div>
         </section>
@@ -280,11 +280,11 @@ sendNotification({
                             <span class="status-badge status-badge--success">200 OK</span>
                         </span>
                     </div>
-                    <pre class="code-block__content"><code>{
-  "success": true,
-  "id": "notif_abc123xyz",
-  "message": "Notification delivered successfully"
-}</code></pre>
+                    <pre class="code-block__content"><code><span class="token punctuation">{</span>
+  <span class="token property">"success"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token property">"id"</span><span class="token punctuation">:</span> <span class="token string">"notif_abc123xyz"</span><span class="token punctuation">,</span>
+  <span class="token property">"message"</span><span class="token punctuation">:</span> <span class="token string">"Notification delivered successfully"</span>
+<span class="token punctuation">}</span></code></pre>
                 </div>
             </div>
         </section>
