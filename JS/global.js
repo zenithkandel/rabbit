@@ -286,6 +286,120 @@
     };
 
     /* ─────────────────────────────────────────────────────────────────
+       Page Loader — Mesmerizing Loading Animation
+       ───────────────────────────────────────────────────────────────── */
+    const PageLoader = {
+        loader: null,
+        dotsInterval: null,
+        minLoadTime: 1000, // Minimum time to show loader (ms)
+        startTime: null,
+        enabled: true,
+        
+        init() {
+            // Skip loader for dashboard pages (iframe content and dashboard shell)
+            const isDashboard = window.location.pathname.includes('/dashboard/') ||
+                               window.location.pathname.includes('\\dashboard\\') ||
+                               window.self !== window.top; // Inside iframe
+            
+            if (isDashboard) {
+                this.enabled = false;
+                return;
+            }
+            
+            // Check if loader already exists (created by inline script)
+            this.loader = document.getElementById('pageLoader');
+            if (this.loader) {
+                this.startTime = window.loaderStartTime || Date.now();
+            } else {
+                this.startTime = Date.now();
+                this.create();
+                this.animateDots();
+            }
+        },
+        
+        create() {
+            // Create loader HTML
+            const loaderHTML = `
+                <div class="page-loader" id="pageLoader">
+                    <div class="loader">
+                        <div class="loader__orbit">
+                            <div class="loader__square"></div>
+                        </div>
+                        <div class="loader__orbit">
+                            <div class="loader__square"></div>
+                        </div>
+                        <div class="loader__orbit">
+                            <div class="loader__square"></div>
+                        </div>
+                        <div class="loader__center">
+                            <div class="loader__rabbit">
+                                <div class="loader__ear loader__ear--left"></div>
+                                <div class="loader__ear loader__ear--right"></div>
+                                <div class="loader__head">
+                                    <div class="loader__eye"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="loader__text">Loading<span class="loader__dots"></span></div>
+                </div>
+            `;
+            
+            // Insert at beginning of body
+            document.body.insertAdjacentHTML('afterbegin', loaderHTML);
+            this.loader = document.getElementById('pageLoader');
+        },
+        
+        animateDots() {
+            const dotsEl = document.querySelector('.loader__dots');
+            if (!dotsEl) return;
+            
+            let dots = 0;
+            this.dotsInterval = setInterval(() => {
+                dots = (dots + 1) % 4;
+                dotsEl.textContent = '.'.repeat(dots);
+            }, 400);
+        },
+        
+        hide() {
+            if (!this.enabled) return;
+            
+            const elapsed = Date.now() - this.startTime;
+            const remaining = Math.max(0, this.minLoadTime - elapsed);
+            
+            setTimeout(() => {
+                if (this.loader) {
+                    this.loader.classList.add('is-hidden');
+                    
+                    // Remove from DOM after transition
+                    setTimeout(() => {
+                        if (this.loader && this.loader.parentNode) {
+                            this.loader.parentNode.removeChild(this.loader);
+                        }
+                    }, 400);
+                }
+                
+                if (this.dotsInterval) {
+                    clearInterval(this.dotsInterval);
+                }
+            }, remaining);
+        },
+        
+        // Manual show (for navigation/AJAX)
+        show() {
+            if (!this.enabled) return;
+            
+            this.startTime = Date.now();
+            if (!this.loader || !document.getElementById('pageLoader')) {
+                this.create();
+                this.animateDots();
+            } else {
+                this.loader.classList.remove('is-hidden');
+            }
+        }
+    };
+
+    /* ─────────────────────────────────────────────────────────────────
        DOM Ready Handler
        ───────────────────────────────────────────────────────────────── */
     function onDOMReady(callback) {
@@ -299,6 +413,22 @@
     /* ─────────────────────────────────────────────────────────────────
        Initialize Global Features
        ───────────────────────────────────────────────────────────────── */
+    
+    // Initialize loader as soon as body is available
+    if (document.body) {
+        PageLoader.init();
+    } else {
+        // Wait for body to be available
+        document.addEventListener('DOMContentLoaded', () => {
+            PageLoader.init();
+        });
+    }
+    
+    // Hide loader when page is fully loaded
+    window.addEventListener('load', () => {
+        PageLoader.hide();
+    });
+    
     onDOMReady(() => {
         ThemeManager.init();
         ScrollAnimator.init();
@@ -320,6 +450,7 @@
         Utils,
         Toast,
         LoadingState,
+        PageLoader,
         onDOMReady
     };
 

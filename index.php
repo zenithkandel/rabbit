@@ -17,11 +17,30 @@
     <link rel="stylesheet" href="CSS/global.css">
     <link rel="stylesheet" href="CSS/index.css">
 </head>
-<body class="is-loading">
-    <!-- Page Loader -->
-    <div class="page-loader">
-        <div class="page-loader__mark">R</div>
-    </div>
+<body>
+    <!-- Loader (injected immediately to show before content) -->
+    <script>
+        (function() {
+            // Skip for dashboard pages
+            if (window.location.pathname.includes('/dashboard/')) return;
+            
+            window.loaderStartTime = Date.now();
+            
+            var loader = document.createElement('div');
+            loader.id = 'pageLoader';
+            loader.className = 'page-loader';
+            loader.innerHTML = '<div class="loader"><div class="loader__orbit"><div class="loader__square"></div></div><div class="loader__orbit"><div class="loader__square"></div></div><div class="loader__orbit"><div class="loader__square"></div></div><div class="loader__center"><div class="loader__rabbit"><div class="loader__ear loader__ear--left"></div><div class="loader__ear loader__ear--right"></div><div class="loader__head"><div class="loader__eye"></div></div></div></div></div><div class="loader__text">Loading<span class="loader__dots"></span></div>';
+            document.body.appendChild(loader);
+            
+            // Animate dots
+            var dots = 0;
+            var dotsEl = loader.querySelector('.loader__dots');
+            setInterval(function() {
+                dots = (dots + 1) % 4;
+                dotsEl.textContent = '.'.repeat(dots);
+            }, 400);
+        })();
+    </script>
 
     <!-- Navigation -->
     <nav class="nav">

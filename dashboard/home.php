@@ -17,14 +17,14 @@
         /* Cleaner Home Layout */
         .home {
             min-height: 100vh;
-            padding: var(--space-10) var(--space-8);
+            padding: var(--space-6) var(--space-6);
             background: var(--bg-primary);
             max-width: 1400px;
             margin: 0 auto;
         }
         
         .home__header {
-            margin-bottom: var(--space-12);
+            margin-bottom: var(--space-8);
             text-align: center;
         }
         
@@ -44,8 +44,8 @@
             display: flex;
             justify-content: center;
             gap: var(--space-12);
-            margin-bottom: var(--space-12);
-            padding: var(--space-8) 0;
+            margin-bottom: var(--space-8);
+            padding: var(--space-6) 0;
             border-top: var(--border-thin) solid var(--border-light);
             border-bottom: var(--border-thin) solid var(--border-light);
         }
@@ -70,11 +70,78 @@
             letter-spacing: var(--tracking-wide);
         }
         
+        /* Quick Nav Cards */
+        .quick-nav {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+        
+        .quick-nav__card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-5);
+            background: var(--bg-secondary);
+            border: var(--border-medium) solid var(--border-color);
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: border-color var(--duration-fast), background var(--duration-fast);
+            cursor: pointer;
+        }
+        
+        .quick-nav__card:hover {
+            border-color: var(--text-primary);
+            background: var(--bg-elevated);
+        }
+        
+        .quick-nav__icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-primary);
+            border: var(--border-thin) solid var(--border-light);
+            flex-shrink: 0;
+        }
+        
+        .quick-nav__icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--text-primary);
+            stroke-width: 1.5;
+            fill: none;
+        }
+        
+        .quick-nav__icon--accent { background: var(--accent-primary); border-color: var(--accent-primary); }
+        .quick-nav__icon--accent svg { stroke: var(--color-paper); }
+        
+        .quick-nav__icon--sage { background: var(--accent-secondary); border-color: var(--accent-secondary); }
+        .quick-nav__icon--sage svg { stroke: var(--color-paper); }
+        
+        .quick-nav__text {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .quick-nav__title {
+            font-size: var(--text-sm);
+            font-weight: 600;
+            margin-bottom: var(--space-1);
+        }
+        
+        .quick-nav__desc {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+        }
+        
         /* Clean Two Column Layout */
         .home__content {
             display: grid;
-            grid-template-columns: 1fr 380px;
-            gap: var(--space-8);
+            grid-template-columns: 1fr 340px;
+            gap: var(--space-6);
             align-items: start;
         }
         
@@ -196,7 +263,6 @@
             padding: var(--space-3) var(--space-4);
             background: var(--bg-primary);
             border: var(--border-thin) solid var(--border-light);
-            margin-bottom: var(--space-4);
         }
         
         .api-card__key-value {
@@ -295,6 +361,10 @@
         
         /* Responsive */
         @media (max-width: 1024px) {
+            .quick-nav {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
             .home__content {
                 grid-template-columns: 1fr;
             }
@@ -307,11 +377,11 @@
         
         @media (max-width: 768px) {
             .home {
-                padding: var(--space-6) var(--space-4);
+                padding: var(--space-4) var(--space-4);
             }
             
             .home__header {
-                margin-bottom: var(--space-8);
+                margin-bottom: var(--space-6);
             }
             
             .home__greeting {
@@ -321,17 +391,41 @@
             .stats-row {
                 flex-wrap: wrap;
                 gap: var(--space-6);
-                padding: var(--space-6) 0;
-                margin-bottom: var(--space-8);
+                padding: var(--space-5) 0;
+                margin-bottom: var(--space-6);
             }
             
             .stat-item {
                 flex: 1;
-                min-width: 100px;
+                min-width: 80px;
             }
             
             .stat-item__value {
-                font-size: var(--text-2xl);
+                font-size: var(--text-xl);
+            }
+            
+            .quick-nav {
+                grid-template-columns: 1fr 1fr;
+                gap: var(--space-3);
+                margin-bottom: var(--space-6);
+            }
+            
+            .quick-nav__card {
+                padding: var(--space-4);
+            }
+            
+            .quick-nav__icon {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .quick-nav__icon svg {
+                width: 16px;
+                height: 16px;
+            }
+            
+            .quick-nav__desc {
+                display: none;
             }
             
             .sidebar-stack {
@@ -374,10 +468,46 @@
                 <div class="stat-item__value">342</div>
                 <div class="stat-item__label">Today</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-item__value">48ms</div>
-                <div class="stat-item__label">Avg. Latency</div>
-            </div>
+        </div>
+
+        <!-- Quick Navigation -->
+        <div class="quick-nav">
+            <a href="#" class="quick-nav__card" onclick="window.parent.Dashboard.navigate('notifications.php'); return false;">
+                <div class="quick-nav__icon quick-nav__icon--accent">
+                    <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                </div>
+                <div class="quick-nav__text">
+                    <div class="quick-nav__title">Notifications</div>
+                    <div class="quick-nav__desc">View all activity</div>
+                </div>
+            </a>
+            <a href="#" class="quick-nav__card" onclick="window.parent.Dashboard.navigate('apps.php'); return false;">
+                <div class="quick-nav__icon quick-nav__icon--sage">
+                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </div>
+                <div class="quick-nav__text">
+                    <div class="quick-nav__title">Apps</div>
+                    <div class="quick-nav__desc">Manage connections</div>
+                </div>
+            </a>
+            <a href="#" class="quick-nav__card" onclick="window.parent.Dashboard.navigate('api-keys.php'); return false;">
+                <div class="quick-nav__icon">
+                    <svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+                </div>
+                <div class="quick-nav__text">
+                    <div class="quick-nav__title">API Keys</div>
+                    <div class="quick-nav__desc">Manage credentials</div>
+                </div>
+            </a>
+            <a href="#" class="quick-nav__card" onclick="window.parent.Dashboard.navigate('settings.php'); return false;">
+                <div class="quick-nav__icon">
+                    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </div>
+                <div class="quick-nav__text">
+                    <div class="quick-nav__title">Settings</div>
+                    <div class="quick-nav__desc">Preferences</div>
+                </div>
+            </a>
         </div>
 
         <!-- Main Content -->
@@ -454,20 +584,13 @@
 
             <!-- Sidebar -->
             <div class="sidebar-stack">
-                <!-- API Usage -->
+                <!-- API Key -->
                 <div class="panel">
                     <div class="api-card">
                         <div class="api-card__label">Your API Key</div>
                         <div class="api-card__key">
                             <span class="api-card__key-value">rb_live_••••••••4f2a</span>
                             <button class="api-card__key-copy" onclick="copyApiKey()">Copy</button>
-                        </div>
-                        <div class="api-card__usage">
-                            <span class="api-card__usage-label">Monthly Usage</span>
-                            <span class="api-card__usage-value">2,847 / 10,000</span>
-                        </div>
-                        <div class="api-card__bar">
-                            <div class="api-card__bar-fill" style="width: 28.47%;"></div>
                         </div>
                     </div>
                 </div>
