@@ -167,6 +167,7 @@
         loader: null,
         navLinks: [],
         currentPage: 'home.php',
+        storageKey: 'rabbit_dashboard_page',
         
         init() {
             this.iframe = document.querySelector('.dashboard__iframe');
@@ -174,6 +175,12 @@
             this.navLinks = document.querySelectorAll('[data-page]');
             
             if (!this.iframe) return;
+            
+            // Restore saved page from sessionStorage
+            const savedPage = sessionStorage.getItem(this.storageKey);
+            if (savedPage) {
+                this.currentPage = savedPage;
+            }
             
             this.bindEvents();
             this.bindNavigation();
@@ -210,8 +217,8 @@
             this.iframe.src = page;
             this.updateActiveNav(page);
             
-            // Collapse taskbar on navigation
-            Taskbar.collapse();
+            // Save current page to sessionStorage
+            sessionStorage.setItem(this.storageKey, page);
         },
         
         updateActiveNav(page) {

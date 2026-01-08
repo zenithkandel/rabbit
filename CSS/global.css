@@ -228,8 +228,8 @@ code, pre {
 code {
     font-size: 0.9em;
     padding: var(--space-1) var(--space-2);
-    background-color: var(--bg-elevated);
-    border: var(--border-thin) solid var(--border-light);
+    /* background-color: var(--bg-elevated); */
+    /* border: var(--border-thin) solid var(--border-light); */
 }
 
 pre {

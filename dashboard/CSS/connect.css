@@ -315,6 +315,68 @@
     border: var(--border-thin) solid var(--border-light);
 }
 
+/* ─────────────────────────────────────────────────────────────────
+   Syntax Highlighting Tokens
+   ───────────────────────────────────────────────────────────────── */
+.token.keyword {
+    color: #B94A2C; /* rust - for const, let, await, async, etc. */
+    font-weight: 500;
+}
+
+.token.function {
+    color: #5C6B55; /* sage - for function names */
+}
+
+.token.string {
+    color: #8B7355; /* warm brown - for strings */
+}
+
+.token.template-string {
+    color: #8B7355;
+}
+
+.token.interpolation {
+    color: var(--text-primary);
+}
+
+.token.comment {
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.token.operator {
+    color: var(--text-muted);
+}
+
+.token.punctuation {
+    color: var(--text-muted);
+}
+
+.token.builtin,
+.token.class-name {
+    color: #6B5B7A; /* muted purple - for fetch, console, etc. */
+}
+
+.token.property {
+    color: #B94A2C; /* rust - for JSON keys */
+}
+
+.token.boolean,
+.token.number {
+    color: #5C6B55; /* sage - for true/false/numbers */
+}
+
+/* cURL specific */
+.token.flag {
+    color: #6B5B7A; /* muted purple */
+}
+
+.token.url {
+    color: #5C6B55; /* sage */
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
 /* Status Badge */
 .status-badge {
     display: inline-flex;
