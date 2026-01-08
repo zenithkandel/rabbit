@@ -324,6 +324,9 @@
         currentApp: 'all',
         currentSort: 'newest',
         searchQuery: '',
+        datePreset: 'all',
+        dateFrom: null,
+        dateTo: null,
         isSelectionMode: false,
         itemsPerPage: 15,
         currentPage: 1
@@ -345,7 +348,20 @@
         searchClear: document.getElementById('searchClear'),
         
         // Filters
-        appFilters: document.getElementById('appFilters'),
+        appFilterDropdown: document.getElementById('appFilterDropdown'),
+        appFilterTrigger: document.getElementById('appFilterTrigger'),
+        appFilterLabel: document.getElementById('appFilterLabel'),
+        appFilterMenu: document.getElementById('appFilterMenu'),
+        appFilterList: document.getElementById('appFilterList'),
+        dateFilterDropdown: document.getElementById('dateFilterDropdown'),
+        dateFilterTrigger: document.getElementById('dateFilterTrigger'),
+        dateFilterLabel: document.getElementById('dateFilterLabel'),
+        dateFilterMenu: document.getElementById('dateFilterMenu'),
+        dateFilterCustom: document.getElementById('dateFilterCustom'),
+        dateFrom: document.getElementById('dateFrom'),
+        dateTo: document.getElementById('dateTo'),
+        dateApplyBtn: document.getElementById('dateApplyBtn'),
+        dateClearBtn: document.getElementById('dateClearBtn'),
         sortTrigger: document.getElementById('sortTrigger'),
         sortLabel: document.getElementById('sortLabel'),
         sortMenu: document.getElementById('sortMenu'),
@@ -461,6 +477,22 @@
             );
         }
         
+        // Filter by date range
+        if (State.dateFrom || State.dateTo) {
+            filtered = filtered.filter(n => {
+                const notifDate = new Date(n.timestamp);
+                notifDate.setHours(0, 0, 0, 0);
+                
+                if (State.dateFrom && notifDate < State.dateFrom) return false;
+                if (State.dateTo) {
+                    const endDate = new Date(State.dateTo);
+                    endDate.setHours(23, 59, 59, 999);
+                    if (notifDate > endDate) return false;
+                }
+                return true;
+            });
+        }
+        
         // Sort
         switch (State.currentSort) {
             case 'newest':
@@ -497,36 +529,48 @@
             appCounts[n.app] = (appCounts[n.app] || 0) + 1;
         });
         
-        // Get unique apps
-        const apps = [...new Set(State.notifications.map(n => n.app))];
+        // Get unique apps sorted by count
+        const apps = [...new Set(State.notifications.map(n => n.app))]
+            .sort((a, b) => appCounts[b] - appCounts[a]);
         
-        // Generate filter pills
+        // Generate dropdown options
         let html = `
-            <button class="app-filter ${State.currentApp === 'all' ? 'is-active' : ''}" data-app="all">
-                All Apps
-                <span class="app-filter__count">${State.notifications.length}</span>
+            <button class="app-option app-option--all ${State.currentApp === 'all' ? 'is-active' : ''}" data-app="all">
+                <span class="app-option__icon">✦</span>
+                <span class="app-option__name">All Apps</span>
+                <span class="app-option__count">${State.notifications.length}</span>
             </button>
         `;
         
         apps.forEach(app => {
             const config = APP_CONFIG[app];
             html += `
-                <button class="app-filter ${State.currentApp === app ? 'is-active' : ''}" data-app="${app}">
-                    <span class="app-filter__icon" style="background: ${config.color}">${config.icon}</span>
-                    ${config.name}
-                    <span class="app-filter__count">${appCounts[app]}</span>
+                <button class="app-option ${State.currentApp === app ? 'is-active' : ''}" data-app="${app}">
+                    <span class="app-option__icon" style="background: ${config.color}">${config.icon}</span>
+                    <span class="app-option__name">${config.name}</span>
+                    <span class="app-option__count">${appCounts[app]}</span>
                 </button>
             `;
         });
         
-        DOM.appFilters.innerHTML = html;
+        DOM.appFilterList.innerHTML = html;
+        
+        // Update trigger label
+        if (State.currentApp === 'all') {
+            DOM.appFilterLabel.textContent = 'All Apps';
+            DOM.appFilterTrigger.classList.remove('has-filter');
+        } else {
+            DOM.appFilterLabel.textContent = APP_CONFIG[State.currentApp].name;
+            DOM.appFilterTrigger.classList.add('has-filter');
+        }
         
         // Add event listeners
-        DOM.appFilters.querySelectorAll('.app-filter').forEach(btn => {
+        DOM.appFilterList.querySelectorAll('.app-option').forEach(btn => {
             btn.addEventListener('click', () => {
                 State.currentApp = btn.dataset.app;
                 filterNotifications();
                 renderAppFilters();
+                DOM.appFilterDropdown.classList.remove('is-open');
             });
         });
     }
@@ -896,7 +940,10 @@
         });
         
         // Sort dropdown
-        DOM.sortTrigger.addEventListener('click', () => {
+        DOM.sortTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            DOM.appFilterDropdown.classList.remove('is-open');
+            DOM.dateFilterDropdown.classList.remove('is-open');
             DOM.sortTrigger.parentElement.classList.toggle('is-open');
         });
         
@@ -911,6 +958,130 @@
                 DOM.sortTrigger.parentElement.classList.remove('is-open');
                 filterNotifications();
             });
+        });
+        
+        // App filter dropdown
+        DOM.appFilterTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            DOM.sortTrigger.parentElement.classList.remove('is-open');
+            DOM.dateFilterDropdown.classList.remove('is-open');
+            DOM.appFilterDropdown.classList.toggle('is-open');
+        });
+        
+        // Date filter dropdown
+        DOM.dateFilterTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            DOM.sortTrigger.parentElement.classList.remove('is-open');
+            DOM.appFilterDropdown.classList.remove('is-open');
+            DOM.dateFilterDropdown.classList.toggle('is-open');
+        });
+        
+        // Date preset buttons
+        DOM.dateFilterMenu.querySelectorAll('.date-preset').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const preset = btn.dataset.preset;
+                State.datePreset = preset;
+                
+                // Update active state
+                DOM.dateFilterMenu.querySelectorAll('.date-preset').forEach(b => b.classList.remove('is-active'));
+                btn.classList.add('is-active');
+                
+                // Show/hide custom inputs
+                DOM.dateFilterCustom.hidden = preset !== 'custom';
+                
+                if (preset === 'custom') {
+                    return; // Wait for apply button
+                }
+                
+                // Calculate date range based on preset
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                
+                switch (preset) {
+                    case 'all':
+                        State.dateFrom = null;
+                        State.dateTo = null;
+                        DOM.dateFilterLabel.textContent = 'All Time';
+                        DOM.dateFilterTrigger.classList.remove('has-filter');
+                        DOM.dateClearBtn.hidden = true;
+                        break;
+                    case 'today':
+                        State.dateFrom = new Date(now);
+                        State.dateTo = new Date(now);
+                        DOM.dateFilterLabel.textContent = 'Today';
+                        DOM.dateFilterTrigger.classList.add('has-filter');
+                        DOM.dateClearBtn.hidden = false;
+                        break;
+                    case 'week':
+                        const weekStart = new Date(now);
+                        weekStart.setDate(now.getDate() - now.getDay());
+                        State.dateFrom = weekStart;
+                        State.dateTo = new Date(now);
+                        DOM.dateFilterLabel.textContent = 'This Week';
+                        DOM.dateFilterTrigger.classList.add('has-filter');
+                        DOM.dateClearBtn.hidden = false;
+                        break;
+                    case 'month':
+                        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+                        State.dateFrom = monthStart;
+                        State.dateTo = new Date(now);
+                        DOM.dateFilterLabel.textContent = 'This Month';
+                        DOM.dateFilterTrigger.classList.add('has-filter');
+                        DOM.dateClearBtn.hidden = false;
+                        break;
+                }
+                
+                DOM.dateFilterDropdown.classList.remove('is-open');
+                filterNotifications();
+            });
+        });
+        
+        // Apply custom date range
+        DOM.dateApplyBtn.addEventListener('click', () => {
+            const fromVal = DOM.dateFrom.value;
+            const toVal = DOM.dateTo.value;
+            
+            if (!fromVal && !toVal) {
+                showToast('Please select at least one date', 'error');
+                return;
+            }
+            
+            State.dateFrom = fromVal ? new Date(fromVal) : null;
+            State.dateTo = toVal ? new Date(toVal) : null;
+            
+            // Format label
+            const formatDate = (d) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            if (State.dateFrom && State.dateTo) {
+                DOM.dateFilterLabel.textContent = `${formatDate(State.dateFrom)} - ${formatDate(State.dateTo)}`;
+            } else if (State.dateFrom) {
+                DOM.dateFilterLabel.textContent = `From ${formatDate(State.dateFrom)}`;
+            } else {
+                DOM.dateFilterLabel.textContent = `Until ${formatDate(State.dateTo)}`;
+            }
+            
+            DOM.dateFilterTrigger.classList.add('has-filter');
+            DOM.dateClearBtn.hidden = false;
+            DOM.dateFilterDropdown.classList.remove('is-open');
+            filterNotifications();
+        });
+        
+        // Clear date filter
+        DOM.dateClearBtn.addEventListener('click', () => {
+            State.datePreset = 'all';
+            State.dateFrom = null;
+            State.dateTo = null;
+            DOM.dateFrom.value = '';
+            DOM.dateTo.value = '';
+            DOM.dateFilterLabel.textContent = 'All Time';
+            DOM.dateFilterTrigger.classList.remove('has-filter');
+            DOM.dateClearBtn.hidden = true;
+            DOM.dateFilterCustom.hidden = true;
+            
+            DOM.dateFilterMenu.querySelectorAll('.date-preset').forEach(b => b.classList.remove('is-active'));
+            DOM.dateFilterMenu.querySelector('[data-preset="all"]').classList.add('is-active');
+            
+            DOM.dateFilterDropdown.classList.remove('is-open');
+            filterNotifications();
         });
         
         // Close dropdown on outside click

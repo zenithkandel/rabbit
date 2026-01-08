@@ -73,16 +73,66 @@
                     </button>
                 </div>
                 
-                <!-- App Filter Pills -->
-                <div class="app-filters" id="appFilters">
-                    <button class="app-filter is-active" data-app="all">
-                        All Apps
-                    </button>
-                    <!-- App pills will be dynamically inserted -->
-                </div>
-                
-                <!-- Sort & View Options -->
+                <!-- Filter Options Row -->
                 <div class="filter-options">
+                    <!-- Date Range Filter -->
+                    <div class="filter-dropdown" id="dateFilterDropdown">
+                        <button class="filter-dropdown__trigger" id="dateFilterTrigger">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                <line x1="3" y1="10" x2="21" y2="10"/>
+                            </svg>
+                            <span id="dateFilterLabel">All Time</span>
+                            <svg class="filter-dropdown__chevron" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </button>
+                        <div class="filter-dropdown__menu filter-dropdown__menu--date" id="dateFilterMenu">
+                            <div class="filter-dropdown__header">Filter by Date</div>
+                            <div class="date-filter__presets">
+                                <button class="date-preset is-active" data-preset="all">All Time</button>
+                                <button class="date-preset" data-preset="today">Today</button>
+                                <button class="date-preset" data-preset="week">This Week</button>
+                                <button class="date-preset" data-preset="month">This Month</button>
+                                <button class="date-preset" data-preset="custom">Custom Range</button>
+                            </div>
+                            <div class="date-filter__custom" id="dateFilterCustom" hidden>
+                                <div class="date-filter__row">
+                                    <label class="date-filter__label">From</label>
+                                    <input type="date" class="date-filter__input" id="dateFrom">
+                                </div>
+                                <div class="date-filter__row">
+                                    <label class="date-filter__label">To</label>
+                                    <input type="date" class="date-filter__input" id="dateTo">
+                                </div>
+                                <button class="btn btn--sm btn--primary date-filter__apply" id="dateApplyBtn">Apply Range</button>
+                            </div>
+                            <button class="date-filter__clear" id="dateClearBtn" hidden>Clear Date Filter</button>
+                        </div>
+                    </div>
+                    
+                    <!-- App Filter Dropdown -->
+                    <div class="filter-dropdown" id="appFilterDropdown">
+                        <button class="filter-dropdown__trigger" id="appFilterTrigger">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                            </svg>
+                            <span id="appFilterLabel">All Apps</span>
+                            <svg class="filter-dropdown__chevron" viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </button>
+                        <div class="filter-dropdown__menu filter-dropdown__menu--apps" id="appFilterMenu">
+                            <div class="filter-dropdown__header">Filter by App</div>
+                            <div class="filter-dropdown__list" id="appFilterList">
+                                <!-- App options will be dynamically inserted -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sort Dropdown -->
                     <div class="filter-dropdown">
                         <button class="filter-dropdown__trigger" id="sortTrigger">
                             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
