@@ -720,9 +720,11 @@
 .btn--outline:hover {
     border-color: var(--text-primary);
     color: var(--text-primary);
+    background: transparent;
 }
 
 .btn--outline.btn--danger {
+    background: transparent;
     border-color: var(--accent-primary);
     color: var(--accent-primary);
 }
