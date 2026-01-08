@@ -807,6 +807,21 @@ body.is-ready .page-loader {
 .code-preview .token-comment { color: #6B6B6B; font-style: italic; }
 .code-preview .token-punctuation { color: #A8A29E; }
 
+.code-preview__body code {
+    color: #E8E4DD;
+}
+
+[data-theme="dark"] .code-preview .token-keyword { color: #FF8A65; }
+[data-theme="dark"] .code-preview .token-string { color: #A5D6A7; }
+[data-theme="dark"] .code-preview .token-property { color: #FFCC80; }
+[data-theme="dark"] .code-preview .token-method { color: #FFE0B2; }
+[data-theme="dark"] .code-preview .token-comment { color: #8A8A8A; font-style: italic; }
+[data-theme="dark"] .code-preview .token-punctuation { color: #BDBDBD; }
+
+[data-theme="dark"] .code-preview__body code {
+    color: #F5F5F5;
+}
+
 .code-copy-btn {
     position: absolute;
     top: var(--space-12);
