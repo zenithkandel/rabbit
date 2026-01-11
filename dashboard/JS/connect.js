@@ -205,11 +205,21 @@ sendNotification({
        Initialize
        ───────────────────────────────────────────────────────────────── */
     function init() {
+        // Re-query DOM elements (in case script loaded before DOM was ready)
+        DOM.codeTabs = document.querySelectorAll('.code-tab');
+        DOM.codeBlocks = document.querySelectorAll('.code-block[data-lang]');
+        DOM.copyButtons = document.querySelectorAll('.btn-copy[data-copy]');
+        DOM.toastContainer = document.getElementById('toastContainer');
+        
         // Initialize event listeners
         initEventListeners();
     }
 
-    // Start
-    init();
+    // Start when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
 })();

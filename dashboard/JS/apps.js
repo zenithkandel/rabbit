@@ -9,206 +9,109 @@
     'use strict';
 
     /* ─────────────────────────────────────────────────────────────────
-       Mock Data
+       API Endpoints
        ───────────────────────────────────────────────────────────────── */
-    const MOCK_APPS = [
-        {
-            id: 'app_001',
-            name: 'Stripe',
-            slug: 'stripe',
-            color: '#635BFF',
-            description: 'Payment processing and subscription management notifications',
-            notificationCount: 156,
-            connectedAt: Date.now() - (90 * 24 * 60 * 60 * 1000),
-            lastUsed: Date.now() - (2 * 60 * 60 * 1000),
-            isActive: true
-        },
-        {
-            id: 'app_002',
-            name: 'GitHub',
-            slug: 'github',
-            color: '#24292F',
-            description: 'Repository events, pull requests, and CI/CD notifications',
-            notificationCount: 243,
-            connectedAt: Date.now() - (120 * 24 * 60 * 60 * 1000),
-            lastUsed: Date.now() - (30 * 60 * 1000),
-            isActive: true
-        },
-        {
-            id: 'app_003',
-            name: 'Vercel',
-            slug: 'vercel',
-            color: '#000000',
-            description: 'Deployment status and serverless function logs',
-            notificationCount: 89,
-            connectedAt: Date.now() - (60 * 24 * 60 * 60 * 1000),
-            lastUsed: Date.now() - (4 * 60 * 60 * 1000),
-            isActive: true
-        },
-        {
-            id: 'app_004',
-            name: 'Auth0',
-            slug: 'auth0',
-            color: '#EB5424',
-            description: 'Authentication events and security alerts',
-            notificationCount: 67,
-            connectedAt: Date.now() - (45 * 24 * 60 * 60 * 1000),
-            lastUsed: Date.now() - (1 * 24 * 60 * 60 * 1000),
-            isActive: true
-        },
-        {
-            id: 'app_005',
-            name: 'Datadog',
-            slug: 'datadog',
-            color: '#632CA6',
-            description: 'Infrastructure monitoring and APM alerts',
-            notificationCount: 312,
-            connectedAt: Date.now() - (180 * 24 * 60 * 60 * 1000),
-            lastUsed: Date.now() - (15 * 60 * 1000),
-            isActive: true
-        },
-        {
-            id: 'app_006',
-            name: 'Slack',
-            slug: 'slack',
-            color: '#4A154B',
-            description: 'Team messaging and workflow notifications',
-            notificationCount: 45,
-            connectedAt: Date.now() - (30 * 24 * 60 * 60 * 1000),
-            lastUsed: Date.now() - (6 * 60 * 60 * 1000),
-            isActive: true
-        },
-        {
-            id: 'app_007',
-            name: 'Discord',
-            slug: 'discord',
-            color: '#5865F2',
-            description: 'Bot events and server activity notifications',
-            notificationCount: 28,
-            connectedAt: Date.now() - (15 * 24 * 60 * 60 * 1000),
-            lastUsed: Date.now() - (2 * 24 * 60 * 60 * 1000),
-            isActive: true
-        },
-        {
-            id: 'app_008',
-            name: 'Twilio',
-            slug: 'twilio',
-            color: '#F22F46',
-            description: 'SMS delivery status and voice call events',
-            notificationCount: 134,
-            connectedAt: Date.now() - (75 * 24 * 60 * 60 * 1000),
-            lastUsed: Date.now() - (12 * 60 * 60 * 1000),
-            isActive: true
-        },
-        {
-            id: 'app_009',
-            name: 'SendGrid',
-            slug: 'sendgrid',
-            color: '#1A82E2',
-            description: 'Email delivery and engagement tracking',
-            notificationCount: 198,
-            connectedAt: Date.now() - (150 * 24 * 60 * 60 * 1000),
-            lastUsed: Date.now() - (3 * 60 * 60 * 1000),
-            isActive: true
-        },
-        {
-            id: 'app_010',
-            name: 'AWS',
-            slug: 'aws',
-            color: '#FF9900',
-            description: 'CloudWatch alarms and service notifications',
-            notificationCount: 276,
-            connectedAt: Date.now() - (200 * 24 * 60 * 60 * 1000),
-            lastUsed: Date.now() - (45 * 60 * 1000),
-            isActive: true
-        }
-    ];
+    const API = {
+        getApps: '/rabbit/API/read/apps.php',
+        createApp: '/rabbit/API/create/app.php',
+        updateApp: '/rabbit/API/update/app.php',
+        deleteApp: '/rabbit/API/delete/app.php',
+        clearNotifications: '/rabbit/API/delete/app-notifications.php'
+    };
 
     /* ─────────────────────────────────────────────────────────────────
        State Management
        ───────────────────────────────────────────────────────────────── */
     const State = {
-        apps: [...MOCK_APPS],
+        apps: [],
         filteredApps: [],
         searchQuery: '',
         currentSort: 'notifications',
         editingApp: null,
-        pendingAction: null
+        pendingAction: null,
+        isLoading: false
     };
 
     /* ─────────────────────────────────────────────────────────────────
        DOM Elements
        ───────────────────────────────────────────────────────────────── */
-    const DOM = {
-        // Counts
-        appCount: document.getElementById('appCount'),
-        
-        // Search
-        searchInput: document.getElementById('searchInput'),
-        searchClear: document.getElementById('searchClear'),
-        
-        // Sort
-        sortTrigger: document.getElementById('sortTrigger'),
-        sortLabel: document.getElementById('sortLabel'),
-        sortMenu: document.getElementById('sortMenu'),
-        
-        // Grid
-        appsGrid: document.getElementById('appsGrid'),
-        emptyState: document.getElementById('emptyState'),
-        emptyStateText: document.getElementById('emptyStateText'),
-        emptyAddBtn: document.getElementById('emptyAddBtn'),
-        loadingState: document.getElementById('loadingState'),
-        
-        // Add button
-        addAppBtn: document.getElementById('addAppBtn'),
-        
-        // App Modal
-        appModal: document.getElementById('appModal'),
-        modalTitle: document.getElementById('modalTitle'),
-        modalClose: document.getElementById('modalClose'),
-        modalCancelBtn: document.getElementById('modalCancelBtn'),
-        modalSaveBtn: document.getElementById('modalSaveBtn'),
-        saveBtnText: document.getElementById('saveBtnText'),
-        appForm: document.getElementById('appForm'),
-        
-        // Form fields
-        iconPreview: document.getElementById('iconPreview'),
-        iconLetter: document.getElementById('iconLetter'),
-        colorPicker: document.getElementById('colorPicker'),
-        appName: document.getElementById('appName'),
-        appSlug: document.getElementById('appSlug'),
-        appWebhook: document.getElementById('appWebhook'),
-        copyWebhookBtn: document.getElementById('copyWebhookBtn'),
-        appDescription: document.getElementById('appDescription'),
-        
-        // Edit mode sections
-        appStats: document.getElementById('appStats'),
-        statNotifications: document.getElementById('statNotifications'),
-        statConnected: document.getElementById('statConnected'),
-        statLastUsed: document.getElementById('statLastUsed'),
-        dangerZone: document.getElementById('dangerZone'),
-        clearNotificationsBtn: document.getElementById('clearNotificationsBtn'),
-        disconnectAppBtn: document.getElementById('disconnectAppBtn'),
-        
-        // Confirmation Modal
-        confirmModal: document.getElementById('confirmModal'),
-        confirmTitle: document.getElementById('confirmTitle'),
-        confirmClose: document.getElementById('confirmClose'),
-        confirmIcon: document.getElementById('confirmIcon'),
-        confirmMessage: document.getElementById('confirmMessage'),
-        confirmWarning: document.getElementById('confirmWarning'),
-        confirmCancelBtn: document.getElementById('confirmCancelBtn'),
-        confirmActionBtn: document.getElementById('confirmActionBtn'),
-        confirmActionText: document.getElementById('confirmActionText'),
-        
-        // Toast
-        toastContainer: document.getElementById('toastContainer')
-    };
+    let DOM = {};
+
+    function initDOM() {
+        DOM = {
+            // Counts
+            appCount: document.getElementById('appCount'),
+            
+            // Search
+            searchInput: document.getElementById('searchInput'),
+            searchClear: document.getElementById('searchClear'),
+            
+            // Sort
+            sortTrigger: document.getElementById('sortTrigger'),
+            sortLabel: document.getElementById('sortLabel'),
+            sortMenu: document.getElementById('sortMenu'),
+            
+            // Grid
+            appsGrid: document.getElementById('appsGrid'),
+            emptyState: document.getElementById('emptyState'),
+            emptyStateText: document.getElementById('emptyStateText'),
+            emptyAddBtn: document.getElementById('emptyAddBtn'),
+            loadingState: document.getElementById('loadingState'),
+            
+            // Add button
+            addAppBtn: document.getElementById('addAppBtn'),
+            
+            // App Modal
+            appModal: document.getElementById('appModal'),
+            modalTitle: document.getElementById('modalTitle'),
+            modalClose: document.getElementById('modalClose'),
+            modalCancelBtn: document.getElementById('modalCancelBtn'),
+            modalSaveBtn: document.getElementById('modalSaveBtn'),
+            saveBtnText: document.getElementById('saveBtnText'),
+            appForm: document.getElementById('appForm'),
+            
+            // Form fields
+            iconPreview: document.getElementById('iconPreview'),
+            iconLetter: document.getElementById('iconLetter'),
+            colorPicker: document.getElementById('colorPicker'),
+            appName: document.getElementById('appName'),
+            appSlug: document.getElementById('appSlug'),
+            appWebhook: document.getElementById('appWebhook'),
+            copyWebhookBtn: document.getElementById('copyWebhookBtn'),
+            appDescription: document.getElementById('appDescription'),
+            
+            // Edit mode sections
+            appStats: document.getElementById('appStats'),
+            statNotifications: document.getElementById('statNotifications'),
+            statConnected: document.getElementById('statConnected'),
+            statLastUsed: document.getElementById('statLastUsed'),
+            dangerZone: document.getElementById('dangerZone'),
+            clearNotificationsBtn: document.getElementById('clearNotificationsBtn'),
+            disconnectAppBtn: document.getElementById('disconnectAppBtn'),
+            
+            // Confirmation Modal
+            confirmModal: document.getElementById('confirmModal'),
+            confirmTitle: document.getElementById('confirmTitle'),
+            confirmClose: document.getElementById('confirmClose'),
+            confirmIcon: document.getElementById('confirmIcon'),
+            confirmMessage: document.getElementById('confirmMessage'),
+            confirmWarning: document.getElementById('confirmWarning'),
+            confirmCancelBtn: document.getElementById('confirmCancelBtn'),
+            confirmActionBtn: document.getElementById('confirmActionBtn'),
+            confirmActionText: document.getElementById('confirmActionText'),
+            
+            // Toast
+            toastContainer: document.getElementById('toastContainer')
+        };
+    }
 
     /* ─────────────────────────────────────────────────────────────────
        Utility Functions
        ───────────────────────────────────────────────────────────────── */
-    function formatTimeAgo(timestamp) {
+    function formatTimeAgo(dateString) {
+        if (!dateString) return 'Never';
+        
+        const timestamp = new Date(dateString).getTime();
         const seconds = Math.floor((Date.now() - timestamp) / 1000);
         
         if (seconds < 60) return 'Just now';
@@ -225,16 +128,13 @@
         });
     }
 
-    function formatDate(timestamp) {
-        return new Date(timestamp).toLocaleDateString('en-US', { 
+    function formatDate(dateString) {
+        if (!dateString) return '—';
+        return new Date(dateString).toLocaleDateString('en-US', { 
             month: 'short', 
             day: 'numeric',
             year: 'numeric'
         });
-    }
-
-    function generateId() {
-        return 'app_' + Math.random().toString(36).substr(2, 9);
     }
 
     function slugify(text) {
@@ -258,6 +158,12 @@
         return `https://api.rabbit.io/webhook/${slug}`;
     }
 
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     /* ─────────────────────────────────────────────────────────────────
        Toast Notifications
        ───────────────────────────────────────────────────────────────── */
@@ -273,7 +179,7 @@
             <svg class="toast__icon" viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
                 ${iconPath}
             </svg>
-            <span>${message}</span>
+            <span>${escapeHtml(message)}</span>
         `;
         
         DOM.toastContainer.appendChild(toast);
@@ -282,6 +188,160 @@
             toast.classList.add('is-leaving');
             setTimeout(() => toast.remove(), 200);
         }, 3000);
+    }
+
+    /* ─────────────────────────────────────────────────────────────────
+       API Functions
+       ───────────────────────────────────────────────────────────────── */
+    async function fetchApps() {
+        try {
+            State.isLoading = true;
+            DOM.loadingState.style.display = 'flex';
+            
+            const response = await fetch(`${API.getApps}?limit=50`, {
+                credentials: 'include'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                State.apps = result.data.apps;
+                filterAndSortApps();
+            } else {
+                showToast(result.message || 'Failed to load apps', 'error');
+            }
+        } catch (error) {
+            console.error('Failed to fetch apps:', error);
+            showToast('Failed to load apps', 'error');
+        } finally {
+            State.isLoading = false;
+            DOM.loadingState.style.display = 'none';
+        }
+    }
+
+    async function createApp(appData) {
+        try {
+            DOM.modalSaveBtn.disabled = true;
+            DOM.saveBtnText.textContent = 'Creating...';
+            
+            const response = await fetch(API.createApp, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(appData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                State.apps.unshift(result.data.app);
+                filterAndSortApps();
+                closeAppModal();
+                showToast('App created successfully');
+            } else {
+                showToast(result.message || 'Failed to create app', 'error');
+            }
+        } catch (error) {
+            console.error('Failed to create app:', error);
+            showToast('Failed to create app', 'error');
+        } finally {
+            DOM.modalSaveBtn.disabled = false;
+            DOM.saveBtnText.textContent = 'Add App';
+        }
+    }
+
+    async function updateApp(appId, appData) {
+        try {
+            DOM.modalSaveBtn.disabled = true;
+            DOM.saveBtnText.textContent = 'Saving...';
+            
+            const response = await fetch(API.updateApp, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    app_id: appId,
+                    ...appData
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Update local state
+                const index = State.apps.findIndex(a => a.id === appId);
+                if (index !== -1) {
+                    State.apps[index] = result.data.app;
+                }
+                filterAndSortApps();
+                closeAppModal();
+                showToast('App updated successfully');
+            } else {
+                showToast(result.message || 'Failed to update app', 'error');
+            }
+        } catch (error) {
+            console.error('Failed to update app:', error);
+            showToast('Failed to update app', 'error');
+        } finally {
+            DOM.modalSaveBtn.disabled = false;
+            DOM.saveBtnText.textContent = 'Save Changes';
+        }
+    }
+
+    async function deleteApp(appId) {
+        try {
+            const response = await fetch(`${API.deleteApp}?app_id=${appId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                State.apps = State.apps.filter(a => a.id !== appId);
+                filterAndSortApps();
+                closeConfirmModal();
+                closeAppModal();
+                showToast('App disconnected successfully');
+            } else {
+                showToast(result.message || 'Failed to delete app', 'error');
+            }
+        } catch (error) {
+            console.error('Failed to delete app:', error);
+            showToast('Failed to delete app', 'error');
+        }
+    }
+
+    async function clearAppNotifications(appId) {
+        try {
+            const response = await fetch(`${API.clearNotifications}?app_id=${appId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Update local state
+                const app = State.apps.find(a => a.id === appId);
+                if (app) {
+                    app.notification_count = 0;
+                }
+                DOM.statNotifications.textContent = '0';
+                filterAndSortApps();
+                closeConfirmModal();
+                showToast(`Cleared ${result.data.deleted_count} notifications`);
+            } else {
+                showToast(result.message || 'Failed to clear notifications', 'error');
+            }
+        } catch (error) {
+            console.error('Failed to clear notifications:', error);
+            showToast('Failed to clear notifications', 'error');
+        }
     }
 
     /* ─────────────────────────────────────────────────────────────────
@@ -303,16 +363,24 @@
         // Sort
         switch (State.currentSort) {
             case 'notifications':
-                filtered.sort((a, b) => b.notificationCount - a.notificationCount);
+                filtered.sort((a, b) => b.notification_count - a.notification_count);
                 break;
             case 'recent':
-                filtered.sort((a, b) => b.lastUsed - a.lastUsed);
+                filtered.sort((a, b) => {
+                    const aTime = a.last_notification_at ? new Date(a.last_notification_at).getTime() : 0;
+                    const bTime = b.last_notification_at ? new Date(b.last_notification_at).getTime() : 0;
+                    return bTime - aTime;
+                });
                 break;
             case 'name':
                 filtered.sort((a, b) => a.name.localeCompare(b.name));
                 break;
             case 'oldest':
-                filtered.sort((a, b) => a.connectedAt - b.connectedAt);
+                filtered.sort((a, b) => {
+                    const aTime = new Date(a.created_at).getTime();
+                    const bTime = new Date(b.created_at).getTime();
+                    return aTime - bTime;
+                });
                 break;
         }
         
@@ -353,26 +421,27 @@
         let html = '';
         State.filteredApps.forEach(app => {
             const letter = app.name.charAt(0).toUpperCase();
-            const statusClass = app.isActive ? '' : 'app-card__status--inactive';
+            const statusClass = app.is_active ? '' : 'app-card__status--inactive';
+            const lastActivity = app.last_notification_at ? formatTimeAgo(app.last_notification_at) : 'No activity';
             
             html += `
-                <article class="app-card" data-app-id="${app.id}" style="--app-color: ${app.color}">
-                    <div class="app-card__status ${statusClass}" title="${app.isActive ? 'Active' : 'Inactive'}"></div>
+                <article class="app-card" data-app-id="${app.id}" style="--app-color: ${app.color || '#5C6B55'}">
+                    <div class="app-card__status ${statusClass}" title="${app.is_active ? 'Active' : 'Inactive'}"></div>
                     <div class="app-card__header">
-                        <div class="app-card__icon" style="background: ${app.color}">${letter}</div>
+                        <div class="app-card__icon" style="background: ${app.color || '#5C6B55'}">${letter}</div>
                         <div class="app-card__info">
-                            <h3 class="app-card__name">${app.name}</h3>
-                            <span class="app-card__slug">${app.slug}</span>
+                            <h3 class="app-card__name">${escapeHtml(app.name)}</h3>
+                            <span class="app-card__slug">${escapeHtml(app.slug)}</span>
                         </div>
                     </div>
-                    ${app.description ? `<p class="app-card__description">${app.description}</p>` : ''}
+                    ${app.description ? `<p class="app-card__description">${escapeHtml(app.description)}</p>` : ''}
                     <div class="app-card__stats">
                         <div class="app-card__stat">
-                            <span class="app-card__stat-value">${app.notificationCount.toLocaleString()}</span>
+                            <span class="app-card__stat-value">${(app.notification_count || 0).toLocaleString()}</span>
                             <span class="app-card__stat-label">Notifications</span>
                         </div>
                         <div class="app-card__stat">
-                            <span class="app-card__stat-value">${formatTimeAgo(app.lastUsed)}</span>
+                            <span class="app-card__stat-value">${lastActivity}</span>
                             <span class="app-card__stat-label">Last Activity</span>
                         </div>
                     </div>
@@ -423,6 +492,7 @@
         
         // Make slug editable
         DOM.appSlug.readOnly = false;
+        DOM.appSlug.dataset.userEdited = '';
         
         DOM.appModal.classList.add('is-open');
         DOM.appName.focus();
@@ -443,17 +513,18 @@
         
         // Set icon preview
         DOM.iconLetter.textContent = app.name.charAt(0).toUpperCase();
-        DOM.iconPreview.style.setProperty('--preview-color', app.color);
+        DOM.iconPreview.style.setProperty('--preview-color', app.color || '#5C6B55');
         
         // Set color picker
+        const appColor = app.color || '#5C6B55';
         DOM.colorPicker.querySelectorAll('.color-swatch').forEach(swatch => {
-            swatch.classList.toggle('is-selected', swatch.dataset.color === app.color);
+            swatch.classList.toggle('is-selected', swatch.dataset.color === appColor);
         });
         
         // Populate stats
-        DOM.statNotifications.textContent = app.notificationCount.toLocaleString();
-        DOM.statConnected.textContent = formatDate(app.connectedAt);
-        DOM.statLastUsed.textContent = formatTimeAgo(app.lastUsed);
+        DOM.statNotifications.textContent = (app.notification_count || 0).toLocaleString();
+        DOM.statConnected.textContent = formatDate(app.created_at);
+        DOM.statLastUsed.textContent = app.last_notification_at ? formatTimeAgo(app.last_notification_at) : 'Never';
         
         // Show edit-only sections
         DOM.appStats.hidden = false;
@@ -518,38 +589,13 @@
                 DOM.appSlug.focus();
                 return;
             }
-        }
-        
-        if (State.editingApp) {
-            // Update existing app
-            const app = State.apps.find(a => a.id === State.editingApp.id);
-            if (app) {
-                app.name = name;
-                app.description = description;
-                app.color = color;
-                
-                showToast('App updated successfully');
-            }
-        } else {
-            // Create new app
-            const newApp = {
-                id: generateId(),
-                name,
-                slug,
-                color,
-                description,
-                notificationCount: 0,
-                connectedAt: Date.now(),
-                lastUsed: Date.now(),
-                isActive: true
-            };
             
-            State.apps.unshift(newApp);
-            showToast('App added successfully');
+            // Create new app
+            createApp({ name, slug, description, color });
+        } else {
+            // Update existing app
+            updateApp(State.editingApp.id, { name, description, color });
         }
-        
-        closeAppModal();
-        filterAndSortApps();
     }
 
     function handleClearNotifications() {
@@ -561,13 +607,7 @@
             warning: 'This will permanently remove all notification history for this app.',
             actionText: 'Clear All',
             action: () => {
-                const app = State.apps.find(a => a.id === State.editingApp.id);
-                if (app) {
-                    app.notificationCount = 0;
-                    DOM.statNotifications.textContent = '0';
-                    showToast('Notifications cleared');
-                }
-                closeConfirmModal();
+                clearAppNotifications(State.editingApp.id);
             }
         });
     }
@@ -581,11 +621,7 @@
             warning: 'This will permanently remove this app and all its notification history.',
             actionText: 'Disconnect',
             action: () => {
-                State.apps = State.apps.filter(a => a.id !== State.editingApp.id);
-                showToast(`${State.editingApp.name} has been disconnected`);
-                closeConfirmModal();
-                closeAppModal();
-                filterAndSortApps();
+                deleteApp(State.editingApp.id);
             }
         });
     }
@@ -716,14 +752,16 @@
        Initialize
        ───────────────────────────────────────────────────────────────── */
     function init() {
-        // Simulate loading delay
-        setTimeout(() => {
-            initEventListeners();
-            filterAndSortApps();
-        }, 500);
+        initDOM();
+        initEventListeners();
+        fetchApps();
     }
 
-    // Start
-    init();
+    // Start when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
 })();
