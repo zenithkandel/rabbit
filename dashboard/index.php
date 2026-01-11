@@ -1,4 +1,22 @@
-<?php require_once __DIR__ . '/../API/config/auth.php'; ?>
+<?php 
+require_once __DIR__ . '/../API/config/auth.php';
+
+// Helper function to get user initials
+function getUserInitials($name) {
+    $parts = explode(' ', trim($name));
+    $initials = '';
+    foreach ($parts as $part) {
+        if (!empty($part)) {
+            $initials .= strtoupper($part[0]);
+        }
+    }
+    return substr($initials, 0, 2);
+}
+
+$userInitials = getUserInitials($currentUser['name'] ?? 'User');
+$userName = htmlspecialchars($currentUser['name'] ?? 'User');
+$userEmail = htmlspecialchars($currentUser['email'] ?? '');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -113,10 +131,10 @@
                     <!-- User Menu -->
                     <div class="user-menu">
                         <button class="user-menu__trigger">
-                            <div class="user-menu__avatar">JD</div>
+                            <div class="user-menu__avatar"><?php echo $userInitials; ?></div>
                             <div class="user-menu__info">
-                                <div class="user-menu__name">John Doe</div>
-                                <div class="user-menu__email">john@example.com</div>
+                                <div class="user-menu__name"><?php echo $userName; ?></div>
+                                <div class="user-menu__email"><?php echo $userEmail; ?></div>
                             </div>
                             <svg class="user-menu__chevron" viewBox="0 0 24 24">
                                 <polyline points="6 9 12 15 18 9"/>
