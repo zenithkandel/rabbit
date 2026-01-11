@@ -5,7 +5,7 @@
   <img src="https://img.shields.io/badge/status-active-5C6B55?style=flat-square" alt="Status">
 </p>
 
-<h1 align="center">🐰 Rabbit</h1>
+<h1 align="center">Rabbit</h1>
 
 <p align="center">
   <strong>A minimalist, self-hosted notification service for developers</strong>
