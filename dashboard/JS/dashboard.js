@@ -339,22 +339,28 @@
             }, 30000);
         },
         
-        fetchStats() {
-            // Placeholder for API call
-            // In production, this would fetch real stats
-            console.log('Fetching latest stats...');
+        async fetchStats() {
+            try {
+                const response = await fetch('/rabbit/API/read/stats.php', {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                if (result.success && result.data) {
+                    this.updateDisplay(result.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch live stats:', error);
+            }
         },
-        
-        updateDisplay(stats) {
+
+        updateDisplay(data) {
             const notifCount = document.querySelector('[data-stat="notifications"]');
             const appCount = document.querySelector('[data-stat="apps"]');
-            
-            if (notifCount && stats.notifications !== undefined) {
-                notifCount.textContent = stats.notifications.toLocaleString();
+            if (notifCount && data.notifications && typeof data.notifications.total === 'number') {
+                notifCount.textContent = data.notifications.total.toLocaleString();
             }
-            
-            if (appCount && stats.apps !== undefined) {
-                appCount.textContent = stats.apps;
+            if (appCount && data.apps && typeof data.apps.total === 'number') {
+                appCount.textContent = data.apps.total.toLocaleString();
             }
         }
     };
@@ -371,6 +377,8 @@
             ThemeSync.init();
             KeyboardShortcuts.init();
             LiveStats.init();
+            // Initial stats fetch
+            LiveStats.fetchStats();
         });
     }
 

@@ -18,7 +18,7 @@ require_once __DIR__ . '/../config/helpers.php';
 setCorsHeaders();
 
 // Only allow PUT/PATCH requests
-requireMethod(['PUT', 'PATCH']);
+requireMethod('PUT,PATCH');
 
 // Check if user is logged in
 if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true) {
