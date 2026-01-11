@@ -69,6 +69,7 @@
             this.bindCloseHandlers();
             this.bindTabs();
             this.bindForms();
+            this.bindPasswordToggles();
         },
         
         bindTriggers() {
@@ -141,6 +142,21 @@
             }
         },
         
+        bindPasswordToggles() {
+            document.querySelectorAll('.password-toggle').forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    const targetId = toggle.dataset.target;
+                    const input = document.getElementById(targetId);
+                    
+                    if (input) {
+                        const isPassword = input.type === 'password';
+                        input.type = isPassword ? 'text' : 'password';
+                        toggle.classList.toggle('is-visible', isPassword);
+                    }
+                });
+            });
+        },
+        
         open(tab = 'signin') {
             this.switchTab(tab);
             this.overlay.classList.add('is-active');
@@ -180,17 +196,69 @@
             const email = formData.get('email');
             const password = formData.get('password');
             
-            // Simulate API call
             const submitBtn = document.querySelector('#signin-form .btn--primary');
+            const originalText = submitBtn.textContent;
+            
+            // Clear previous errors
+            this.clearFormErrors('signin-form');
+            
+            // Client-side validation
+            const errors = {};
+            
+            if (!email || !this.isValidEmail(email)) {
+                errors.email = 'Please enter a valid email address';
+            }
+            
+            if (!password) {
+                errors.password = 'Password is required';
+            }
+            
+            if (Object.keys(errors).length > 0) {
+                this.showFormErrors('signin-form', errors);
+                return;
+            }
+            
+            // Disable button and show loading state
             submitBtn.disabled = true;
             submitBtn.textContent = 'Signing in...';
             
-            setTimeout(() => {
-                Toast.success('Welcome back! Redirecting to dashboard...');
+            try {
+                const response = await fetch('/rabbit/API/signin.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: email.trim(),
+                        password: password
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Toast.success('Welcome back! Redirecting to dashboard...');
+                    this.close();
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = result.data.redirect || '/rabbit/dashboard/';
+                    }, 1000);
+                } else {
+                    // Show validation errors from server
+                    if (result.errors) {
+                        this.showFormErrors('signin-form', result.errors);
+                    }
+                    Toast.error(result.message || 'Signin failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Signin error:', error);
+                Toast.error('Connection error. Please check your internet and try again.');
+            } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Sign In';
-                this.close();
-            }, 1500);
+                submitBtn.textContent = originalText;
+            }
         },
         
         async handleSignUp(formData) {
@@ -250,17 +318,14 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    // Store API key temporarily for display
+                    // Store API key temporarily for display (shown only once)
                     sessionStorage.setItem('rabbit_new_api_key', result.data.api_key);
                     sessionStorage.setItem('rabbit_user_name', result.data.user.name);
                     
-                    Toast.success('Account created! Redirecting to dashboard...');
-                    this.close();
+                    Toast.success('Account created! Signing you in...');
                     
-                    // Redirect to dashboard after short delay
-                    setTimeout(() => {
-                        window.location.href = '/rabbit/dashboard/';
-                    }, 1500);
+                    // Now sign in the user via signin API to create session
+                    await this.autoSignIn(email.trim(), password);
                 } else {
                     // Show validation errors from server
                     if (result.errors) {
@@ -274,6 +339,38 @@
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = originalText;
+            }
+        },
+        
+        async autoSignIn(email, password) {
+            try {
+                const response = await fetch('/rabbit/API/signin.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    this.close();
+                    
+                    // Redirect to dashboard
+                    setTimeout(() => {
+                        window.location.href = result.data.redirect || '/rabbit/dashboard/';
+                    }, 1000);
+                } else {
+                    // Fallback: redirect to signin if auto-signin fails
+                    Toast.info('Please sign in with your new account.');
+                    this.switchTab('signin');
+                }
+            } catch (error) {
+                console.error('Auto signin error:', error);
+                Toast.info('Please sign in with your new account.');
+                this.switchTab('signin');
             }
         },
         
@@ -304,8 +401,13 @@
                     errorEl.className = 'form-error';
                     errorEl.textContent = message;
                     
-                    // Insert after input
-                    input.parentNode.appendChild(errorEl);
+                    // Insert after input wrapper (for password fields) or input's parent
+                    const wrapper = input.closest('.input-password-wrapper');
+                    if (wrapper) {
+                        wrapper.parentNode.appendChild(errorEl);
+                    } else {
+                        input.parentNode.appendChild(errorEl);
+                    }
                 }
             });
             
