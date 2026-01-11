@@ -123,7 +123,8 @@
       app<span class="token punctuation">:</span> <span class="token string">'your-app-slug'</span><span class="token punctuation">,</span>
       title<span class="token punctuation">:</span> <span class="token string">'New Payment Received'</span><span class="token punctuation">,</span>
       body<span class="token punctuation">:</span> <span class="token string">'You received a payment of $99.00 from john@example.com'</span><span class="token punctuation">,</span>
-      tag<span class="token punctuation">:</span> <span class="token string">'payment'</span>  <span class="token comment">// optional: 'alert', 'info', 'success', etc.</span>
+      tag<span class="token punctuation">:</span> <span class="token string">'payment'</span><span class="token punctuation">,</span>  <span class="token comment">// optional: 'alert', 'info', 'success', etc.</span>
+      target_link<span class="token punctuation">:</span> <span class="token string">'https://dashboard.stripe.com/payments/pi_123'</span>  <span class="token comment">// optional: link for more details</span>
     <span class="token punctuation">}</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
   
@@ -160,7 +161,8 @@
       app<span class="token punctuation">:</span> notification<span class="token punctuation">.</span>app<span class="token punctuation">,</span>
       title<span class="token punctuation">:</span> notification<span class="token punctuation">.</span>title<span class="token punctuation">,</span>
       body<span class="token punctuation">:</span> notification<span class="token punctuation">.</span>body<span class="token punctuation">,</span>
-      tag<span class="token punctuation">:</span> notification<span class="token punctuation">.</span>tag <span class="token operator">||</span> <span class="token keyword">null</span>
+      tag<span class="token punctuation">:</span> notification<span class="token punctuation">.</span>tag <span class="token operator">||</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+      target_link<span class="token punctuation">:</span> notification<span class="token punctuation">.</span>target_link <span class="token operator">||</span> <span class="token keyword">null</span>
     <span class="token punctuation">}</span><span class="token punctuation">)</span>
   <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
@@ -176,7 +178,8 @@
   app<span class="token punctuation">:</span> <span class="token string">'stripe'</span><span class="token punctuation">,</span>
   title<span class="token punctuation">:</span> <span class="token string">'New Subscription'</span><span class="token punctuation">,</span>
   body<span class="token punctuation">:</span> <span class="token string">'Customer upgraded to Pro plan ($29/mo)'</span><span class="token punctuation">,</span>
-  tag<span class="token punctuation">:</span> <span class="token string">'success'</span>
+  tag<span class="token punctuation">:</span> <span class="token string">'success'</span><span class="token punctuation">,</span>
+  target_link<span class="token punctuation">:</span> <span class="token string">'https://dashboard.stripe.com/subscriptions/sub_123'</span>
 <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>result <span class="token operator">=></span> <span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>result<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
                 </div>
 
@@ -199,7 +202,8 @@
     "app": "your-app-slug",
     "title": "New Payment Received",
     "body": "You received a payment of $99.00",
-    "tag": "payment"
+    "tag": "payment",
+    "target_link": "https://dashboard.stripe.com/payments/pi_123"
   }'</span></code></pre>
                 </div>
             </div>
@@ -254,6 +258,12 @@
                             <td>string</td>
                             <td><span class="badge badge--optional">Optional</span></td>
                             <td>Category tag: <code>alert</code>, <code>info</code>, <code>success</code>, <code>warning</code>, or custom</td>
+                        </tr>
+                        <tr>
+                            <td><code>target_link</code></td>
+                            <td>string</td>
+                            <td><span class="badge badge--optional">Optional</span></td>
+                            <td>URL to open when user wants more details about the notification</td>
                         </tr>
                     </tbody>
                 </table>

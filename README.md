@@ -101,7 +101,7 @@ POST /api/notify
 | `title` | string | Yes | Notification title |
 | `message` | string | Yes | Notification body |
 | `type` | string | No | `info`, `success`, `warning`, `error` |
-| `url` | string | No | URL to open when clicked |
+| `target_link` | string | No | URL for more details about the notification |
 | `icon` | string | No | Custom icon URL |
 
 **Example Request:**
@@ -116,7 +116,8 @@ const response = await fetch('https://your-domain.com/api/notify', {
   body: JSON.stringify({
     title: 'New Order',
     message: 'Order #1234 has been placed',
-    type: 'success'
+    type: 'success',
+    target_link: 'https://your-app.com/orders/1234'
   })
 });
 ```

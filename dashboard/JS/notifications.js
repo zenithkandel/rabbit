@@ -18,7 +18,8 @@
             body: 'Invoice #4521 has been paid by Acme Corp. Amount: $2,450.00 USD',
             tag: 'payment',
             timestamp: Date.now() - (5 * 60 * 1000), // 5 mins ago
-            isRead: false
+            isRead: false,
+            target_link: 'https://dashboard.stripe.com/payments/pi_4521'
         },
         {
             id: 'n002',
@@ -28,7 +29,8 @@
             body: 'PR #287 "feat/webhook-retry" has been merged into main by @johndoe',
             tag: 'deploy',
             timestamp: Date.now() - (18 * 60 * 1000), // 18 mins ago
-            isRead: false
+            isRead: false,
+            target_link: 'https://github.com/rabbit/app/pull/287'
         },
         {
             id: 'n003',
@@ -38,7 +40,8 @@
             body: 'A new user sarah@acme.co has registered via Google OAuth',
             tag: 'auth',
             timestamp: Date.now() - (35 * 60 * 1000), // 35 mins ago
-            isRead: true
+            isRead: true,
+            target_link: 'https://manage.auth0.com/users/sarah@acme.co'
         },
         {
             id: 'n004',
@@ -48,7 +51,8 @@
             body: 'Production deployment for rabbit-app completed successfully. Build time: 42s',
             tag: 'deploy',
             timestamp: Date.now() - (1 * 60 * 60 * 1000), // 1 hour ago
-            isRead: true
+            isRead: true,
+            target_link: 'https://vercel.com/rabbit/deployments/dpl_abc123'
         },
         {
             id: 'n005',
@@ -58,7 +62,8 @@
             body: 'Server prod-web-01 CPU usage exceeded 85% threshold for 5 minutes',
             tag: 'alert',
             timestamp: Date.now() - (2 * 60 * 60 * 1000), // 2 hours ago
-            isRead: false
+            isRead: false,
+            target_link: 'https://app.datadoghq.com/monitors/12345'
         },
         {
             id: 'n006',
@@ -677,6 +682,20 @@
             tagHtml = `<span class="notification-card__tag notification-card__tag--${notification.tag}">${notification.tag}</span>`;
         }
         
+        let targetLinkHtml = '';
+        if (notification.target_link) {
+            targetLinkHtml = `
+                <a href="${notification.target_link}" class="notification-card__link" target="_blank" rel="noopener noreferrer" title="Open in new tab">
+                    <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    <span>View Details</span>
+                </a>
+            `;
+        }
+        
         return `
             <article class="notification-card ${notification.isRead ? '' : 'is-unread'} ${isSelected ? 'is-selected' : ''}" 
                      data-id="${notification.id}">
@@ -698,6 +717,7 @@
                             ${notification.appName}
                         </span>
                         ${tagHtml}
+                        ${targetLinkHtml}
                     </div>
                 </div>
                 <div class="notification-card__actions">

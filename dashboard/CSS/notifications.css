@@ -711,6 +711,30 @@
     color: #8B5CF6; 
 }
 
+/* Target Link */
+.notification-card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--accent-primary);
+    text-decoration: none;
+    padding: var(--space-1) var(--space-2);
+    background: color-mix(in srgb, var(--accent-primary) 10%, var(--bg-primary));
+    transition: all var(--duration-fast);
+    margin-left: auto;
+}
+
+.notification-card__link:hover {
+    background: color-mix(in srgb, var(--accent-primary) 20%, var(--bg-primary));
+    color: var(--accent-primary);
+}
+
+.notification-card__link svg {
+    flex-shrink: 0;
+}
+
 /* Actions */
 .notification-card__actions {
     display: flex;
