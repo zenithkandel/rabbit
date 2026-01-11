@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/../API/config/auth.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
