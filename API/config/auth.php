@@ -4,6 +4,11 @@
    Include this file at the top of any page that requires authentication
    ═══════════════════════════════════════════════════════════════════════════ */
 
+// Define API constant to allow database access
+if (!defined('RABBIT_API')) {
+    define('RABBIT_API', true);
+}
+
 // Start session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
