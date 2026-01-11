@@ -141,6 +141,65 @@ $hasApiKey = $currentUser['has_api_key'] ?? false;
             letter-spacing: var(--tracking-wide);
         }
         
+        .stat-loading {
+            color: var(--text-muted);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        
+        /* Loading Placeholders */
+        .loading-placeholder {
+            height: 60px;
+            background: linear-gradient(90deg, var(--bg-elevated) 25%, var(--bg-primary) 50%, var(--bg-elevated) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            margin: var(--space-3) var(--space-5);
+        }
+        
+        .loading-placeholder--sm {
+            height: 40px;
+            margin: var(--space-2) var(--space-3);
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Empty States */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-8) var(--space-4);
+            text-align: center;
+            color: var(--text-muted);
+        }
+        
+        .empty-state__icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: var(--space-4);
+            opacity: 0.5;
+        }
+        
+        .empty-state__title {
+            font-size: var(--text-sm);
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-1);
+        }
+        
+        .empty-state__text {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+        }
+        
         /* Quick Nav Cards */
         .quick-nav {
             display: grid;
@@ -534,15 +593,21 @@ $hasApiKey = $currentUser['has_api_key'] ?? false;
         <!-- Key Stats Row -->
         <div class="stats-row">
             <div class="stat-item">
-                <div class="stat-item__value">2,847</div>
+                <div class="stat-item__value" data-stat="total-notifications">
+                    <span class="stat-loading">—</span>
+                </div>
                 <div class="stat-item__label">Total Notifications</div>
             </div>
             <div class="stat-item">
-                <div class="stat-item__value">5</div>
+                <div class="stat-item__value" data-stat="connected-apps">
+                    <span class="stat-loading">—</span>
+                </div>
                 <div class="stat-item__label">Connected Apps</div>
             </div>
             <div class="stat-item">
-                <div class="stat-item__value">342</div>
+                <div class="stat-item__value" data-stat="today-notifications">
+                    <span class="stat-loading">—</span>
+                </div>
                 <div class="stat-item__label">Today</div>
             </div>
         </div>
@@ -595,66 +660,12 @@ $hasApiKey = $currentUser['has_api_key'] ?? false;
                     <h2 class="panel__title">Recent Notifications</h2>
                     <a href="#" class="panel__action" onclick="window.parent.Dashboard.navigate('notifications.php'); return false;">View All</a>
                 </div>
-                <div class="notification-list">
-                    <div class="notification-item">
-                        <div class="notification-item__icon">S</div>
-                        <div class="notification-item__content">
-                            <div class="notification-item__title">Payment Received — Invoice #4521 paid by Acme Corp</div>
-                            <div class="notification-item__meta">
-                                <span class="notification-item__app">Stripe</span>
-                                <span class="notification-item__time">2 min ago</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="notification-item">
-                        <div class="notification-item__icon notification-item__icon--ink">A</div>
-                        <div class="notification-item__content">
-                            <div class="notification-item__title">New user registered: sarah@acme.co</div>
-                            <div class="notification-item__meta">
-                                <span class="notification-item__app">Auth0</span>
-                                <span class="notification-item__time">6 min ago</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="notification-item">
-                        <div class="notification-item__icon notification-item__icon--ink">V</div>
-                        <div class="notification-item__content">
-                            <div class="notification-item__title">Deploy successful: production v2.4.1</div>
-                            <div class="notification-item__meta">
-                                <span class="notification-item__app">Vercel</span>
-                                <span class="notification-item__time">27 min ago</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="notification-item">
-                        <div class="notification-item__icon notification-item__icon--sage">G</div>
-                        <div class="notification-item__content">
-                            <div class="notification-item__title">PR merged: feat/webhook-retry #287</div>
-                            <div class="notification-item__meta">
-                                <span class="notification-item__app">GitHub</span>
-                                <span class="notification-item__time">1 hour ago</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="notification-item">
-                        <div class="notification-item__icon">D</div>
-                        <div class="notification-item__content">
-                            <div class="notification-item__title">CPU usage alert: server-prod-01 at 85%</div>
-                            <div class="notification-item__meta">
-                                <span class="notification-item__app">Datadog</span>
-                                <span class="notification-item__time">2 hours ago</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="notification-item">
-                        <div class="notification-item__icon">S</div>
-                        <div class="notification-item__content">
-                            <div class="notification-item__title">Subscription renewed: Pro Plan</div>
-                            <div class="notification-item__meta">
-                                <span class="notification-item__app">Stripe</span>
-                                <span class="notification-item__time">Yesterday</span>
-                            </div>
-                        </div>
+                <div class="notification-list" id="notificationList">
+                    <!-- Loading state -->
+                    <div class="notification-list__loading">
+                        <div class="loading-placeholder"></div>
+                        <div class="loading-placeholder"></div>
+                        <div class="loading-placeholder"></div>
                     </div>
                 </div>
             </div>
@@ -697,31 +708,12 @@ $hasApiKey = $currentUser['has_api_key'] ?? false;
                         <h2 class="panel__title">Apps</h2>
                         <a href="#" class="panel__action" onclick="window.parent.Dashboard.navigate('apps.php'); return false;">Manage</a>
                     </div>
-                    <div class="apps-mini">
-                        <div class="apps-mini__item">
-                            <div class="apps-mini__icon">S</div>
-                            <span class="apps-mini__name">Stripe</span>
-                            <span class="apps-mini__status"></span>
-                        </div>
-                        <div class="apps-mini__item">
-                            <div class="apps-mini__icon apps-mini__icon--sage">G</div>
-                            <span class="apps-mini__name">GitHub</span>
-                            <span class="apps-mini__status"></span>
-                        </div>
-                        <div class="apps-mini__item">
-                            <div class="apps-mini__icon apps-mini__icon--ink">V</div>
-                            <span class="apps-mini__name">Vercel</span>
-                            <span class="apps-mini__status"></span>
-                        </div>
-                        <div class="apps-mini__item">
-                            <div class="apps-mini__icon apps-mini__icon--ink">A</div>
-                            <span class="apps-mini__name">Auth0</span>
-                            <span class="apps-mini__status"></span>
-                        </div>
-                        <div class="apps-mini__item">
-                            <div class="apps-mini__icon">D</div>
-                            <span class="apps-mini__name">Datadog</span>
-                            <span class="apps-mini__status"></span>
+                    <div class="apps-mini" id="appsList">
+                        <!-- Loading state -->
+                        <div class="apps-mini__loading">
+                            <div class="loading-placeholder loading-placeholder--sm"></div>
+                            <div class="loading-placeholder loading-placeholder--sm"></div>
+                            <div class="loading-placeholder loading-placeholder--sm"></div>
                         </div>
                     </div>
                 </div>
@@ -746,6 +738,152 @@ $hasApiKey = $currentUser['has_api_key'] ?? false;
                 greeting.textContent = greetingText + ', ' + userName;
             }
         })();
+
+        // Load dashboard stats
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('/rabbit/API/read/stats.php', {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    const stats = result.data;
+                    
+                    // Update total notifications
+                    const totalNotifs = document.querySelector('[data-stat="total-notifications"]');
+                    if (totalNotifs) {
+                        totalNotifs.textContent = stats.notifications.total.toLocaleString();
+                    }
+                    
+                    // Update connected apps
+                    const connectedApps = document.querySelector('[data-stat="connected-apps"]');
+                    if (connectedApps) {
+                        connectedApps.textContent = stats.apps.total.toLocaleString();
+                    }
+                    
+                    // Update today's notifications
+                    const todayNotifs = document.querySelector('[data-stat="today-notifications"]');
+                    if (todayNotifs) {
+                        todayNotifs.textContent = stats.notifications.today.toLocaleString();
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+                // Show error state
+                document.querySelectorAll('[data-stat]').forEach(el => {
+                    el.textContent = '—';
+                });
+            }
+        }
+        
+        // Load stats on page load
+        loadDashboardStats();
+        
+        // Load recent notifications
+        async function loadRecentNotifications() {
+            const container = document.getElementById('notificationList');
+            if (!container) return;
+            
+            try {
+                const response = await fetch('/rabbit/API/read/notifications.php?limit=6', {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success && result.data.notifications.length > 0) {
+                    container.innerHTML = result.data.notifications.map(notif => `
+                        <div class="notification-item">
+                            <div class="notification-item__icon" style="background-color: ${notif.app_color || 'var(--accent-primary)'}">
+                                ${notif.app_name.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="notification-item__content">
+                                <div class="notification-item__title">${escapeHtml(notif.title)}</div>
+                                <div class="notification-item__meta">
+                                    <span class="notification-item__app">${escapeHtml(notif.app_name)}</span>
+                                    <span class="notification-item__time">${notif.created_at_relative}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                            </svg>
+                            <div class="empty-state__title">No notifications yet</div>
+                            <div class="empty-state__text">Connect an app to start receiving notifications</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Failed to load notifications:', error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state__title">Failed to load</div>
+                        <div class="empty-state__text">Please refresh the page</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load connected apps
+        async function loadConnectedApps() {
+            const container = document.getElementById('appsList');
+            if (!container) return;
+            
+            try {
+                const response = await fetch('/rabbit/API/read/apps.php?limit=5&active=1', {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success && result.data.apps.length > 0) {
+                    container.innerHTML = result.data.apps.map(app => `
+                        <div class="apps-mini__item">
+                            <div class="apps-mini__icon" style="background-color: ${app.color || 'var(--accent-primary)'}">
+                                ${app.name.charAt(0).toUpperCase()}
+                            </div>
+                            <span class="apps-mini__name">${escapeHtml(app.name)}</span>
+                            ${app.is_active ? '<span class="apps-mini__status"></span>' : ''}
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: var(--space-6) var(--space-4);">
+                            <svg class="empty-state__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width: 32px; height: 32px;">
+                                <rect x="3" y="3" width="7" height="7"/>
+                                <rect x="14" y="3" width="7" height="7"/>
+                                <rect x="14" y="14" width="7" height="7"/>
+                                <rect x="3" y="14" width="7" height="7"/>
+                            </svg>
+                            <div class="empty-state__title">No apps connected</div>
+                            <div class="empty-state__text">Add your first app</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Failed to load apps:', error);
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: var(--space-6) var(--space-4);">
+                        <div class="empty-state__title">Failed to load</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // Utility: escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Load all dashboard data
+        loadRecentNotifications();
+        loadConnectedApps();
 
         // Listen for theme changes from parent
         window.addEventListener('message', (e) => {
