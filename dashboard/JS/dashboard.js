@@ -90,12 +90,31 @@
             this.close();
         },
         
-        logout() {
-            // Simulate logout
-            Toast.success('Logged out successfully');
-            setTimeout(() => {
+        async logout() {
+            try {
+                const response = await fetch('../API/logout.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    Toast.success('Logged out successfully');
+                    setTimeout(() => {
+                        window.location.href = data.redirect || '../index.php';
+                    }, 500);
+                } else {
+                    // Even if logout fails, redirect to be safe
+                    window.location.href = '../index.php';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                // Redirect anyway
                 window.location.href = '../index.php';
-            }, 1000);
+            }
         }
     };
 
@@ -359,7 +378,8 @@
     window.Dashboard = {
         IframeManager,
         navigate: (page) => IframeManager.navigate(page),
-        showToast: Toast.show.bind(Toast)
+        showToast: Toast.show.bind(Toast),
+        logout: () => UserMenu.logout()
     };
 
     init();

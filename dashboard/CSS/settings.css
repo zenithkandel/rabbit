@@ -169,6 +169,63 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────
+   API Key Display
+   ───────────────────────────────────────────────────────────────── */
+.api-key-display {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.api-key-display__info {
+    flex: 1;
+}
+
+.api-key-display__label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.api-key-display__value {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background: var(--bg-primary);
+    border: var(--border-thin) solid var(--border-color);
+    margin-bottom: var(--space-2);
+}
+
+.api-key-display__value code {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    word-break: break-all;
+}
+
+.btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color var(--duration-fast);
+    flex-shrink: 0;
+}
+
+.btn-icon:hover {
+    color: var(--text-primary);
+}
+
+/* ─────────────────────────────────────────────────────────────────
    Danger Zone Actions
    ───────────────────────────────────────────────────────────────── */
 .danger-actions {

@@ -233,7 +233,7 @@ $userEmail = htmlspecialchars($currentUser['email'] ?? '');
                     </a>
                 </nav>
                 <div class="mobile-menu__footer">
-                    <button class="btn btn--outline" style="width: 100%;" onclick="window.Dashboard.navigate('settings.php'); document.querySelector('.mobile-menu').classList.remove('is-open');">
+                    <button class="btn btn--outline" style="width: 100%;" onclick="window.Dashboard.logout();">
                         Sign Out
                     </button>
                 </div>

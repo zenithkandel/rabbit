@@ -1,4 +1,11 @@
-<?php require_once __DIR__ . '/../API/config/auth.php'; ?>
+<?php 
+require_once __DIR__ . '/../API/config/auth.php';
+
+// Get first name for greeting
+$firstName = explode(' ', trim($currentUser['name'] ?? 'User'))[0];
+$firstName = htmlspecialchars($firstName);
+$userId = $currentUser['id'];
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -451,7 +458,7 @@
     <div class="home">
         <!-- Welcome Header -->
         <header class="home__header">
-            <h1 class="home__greeting">Welcome back, John</h1>
+            <h1 class="home__greeting" data-user-name="<?php echo $firstName; ?>">Welcome back, <?php echo $firstName; ?></h1>
             <p class="home__subtitle">Here's what's happening with your notifications</p>
         </header>
 
@@ -590,8 +597,8 @@
                     <div class="api-card">
                         <div class="api-card__label">Your API Key</div>
                         <div class="api-card__key">
-                            <span class="api-card__key-value">rb_live_••••••••4f2a</span>
-                            <button class="api-card__key-copy" onclick="copyApiKey()">Copy</button>
+                            <span class="api-card__key-value" id="apiKeyDisplay">Loading...</span>
+                            <button class="api-card__key-copy" id="copyApiKeyBtn">Copy</button>
                         </div>
                     </div>
                 </div>
@@ -635,23 +642,79 @@
     </div>
 
     <script>
-        // Copy API Key function
-        function copyApiKey() {
-            const fullKey = 'rb_live_a8f3k2m9x7p4q1w5e6r3t8y2u0i4f2a';
-            navigator.clipboard.writeText(fullKey).then(() => {
-                const btn = document.querySelector('.api-card__key-copy');
-                const originalText = btn.textContent;
-                btn.textContent = 'Copied!';
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                }, 2000);
-            });
+        // Store for API key (loaded from server)
+        let currentApiKey = null;
+        
+        // Load API key on page load
+        async function loadApiKey() {
+            try {
+                // Check if there's a new API key in sessionStorage (from signup)
+                const newKey = sessionStorage.getItem('rabbit_new_api_key');
+                if (newKey) {
+                    currentApiKey = newKey;
+                    displayApiKey(newKey);
+                    // Clear from sessionStorage after displaying
+                    sessionStorage.removeItem('rabbit_new_api_key');
+                    sessionStorage.removeItem('rabbit_user_name');
+                    return;
+                }
+                
+                const response = await fetch('/rabbit/API/read/apikey.php', {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success && result.data.api_key) {
+                    currentApiKey = result.data.api_key;
+                    displayApiKey(result.data.api_key);
+                } else if (result.data.masked) {
+                    document.getElementById('apiKeyDisplay').textContent = result.data.masked;
+                } else {
+                    document.getElementById('apiKeyDisplay').textContent = 'No API key';
+                }
+            } catch (error) {
+                console.error('Failed to load API key:', error);
+                document.getElementById('apiKeyDisplay').textContent = 'Error loading key';
+            }
         }
+        
+        function displayApiKey(key) {
+            const display = document.getElementById('apiKeyDisplay');
+            if (key) {
+                // Show masked version
+                const masked = key.substring(0, 6) + '••••••••••••' + key.substring(key.length - 4);
+                display.textContent = masked;
+            }
+        }
+        
+        // Copy API Key function
+        document.getElementById('copyApiKeyBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('copyApiKeyBtn');
+            
+            if (currentApiKey) {
+                try {
+                    await navigator.clipboard.writeText(currentApiKey);
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                    }, 2000);
+                } catch (e) {
+                    btn.textContent = 'Failed';
+                    setTimeout(() => btn.textContent = 'Copy', 2000);
+                }
+            } else {
+                btn.textContent = 'No key';
+                setTimeout(() => btn.textContent = 'Copy', 2000);
+            }
+        });
 
         // Dynamic greeting based on time
         (function() {
             const hour = new Date().getHours();
             const greeting = document.querySelector('.home__greeting');
+            const userName = greeting?.dataset.userName || 'there';
+            
             if (greeting) {
                 let greetingText = 'Good morning';
                 if (hour >= 12 && hour < 17) {
@@ -659,9 +722,12 @@
                 } else if (hour >= 17) {
                     greetingText = 'Good evening';
                 }
-                greeting.textContent = greetingText + ', John';
+                greeting.textContent = greetingText + ', ' + userName;
             }
         })();
+        
+        // Initialize on load
+        loadApiKey();
 
         // Listen for theme changes from parent
         window.addEventListener('message', (e) => {

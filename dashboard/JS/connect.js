@@ -9,9 +9,9 @@
     'use strict';
 
     /* ─────────────────────────────────────────────────────────────────
-       Mock API Key
+       API Key State
        ───────────────────────────────────────────────────────────────── */
-    let currentApiKey = 'rb_live_sk7xK9mP2nQ4wR8tY6uI3oL5jH1gF0zA';
+    let currentApiKey = null;
 
     /* ─────────────────────────────────────────────────────────────────
        Code Examples
@@ -247,11 +247,33 @@ sendNotification({
         DOM.confirmModal.querySelector('.modal__backdrop').addEventListener('click', closeConfirmModal);
         
         // Confirm regenerate
-        DOM.confirmActionBtn.addEventListener('click', () => {
-            currentApiKey = generateApiKey();
-            DOM.apiKeyDisplay.textContent = maskApiKey(currentApiKey);
-            closeConfirmModal();
-            showToast('API key regenerated successfully');
+        DOM.confirmActionBtn.addEventListener('click', async () => {
+            DOM.confirmActionBtn.disabled = true;
+            DOM.confirmActionBtn.textContent = 'Regenerating...';
+            
+            try {
+                const response = await fetch('/rabbit/API/update/apikey.php', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentApiKey = result.data.api_key;
+                    DOM.apiKeyDisplay.textContent = maskApiKey(currentApiKey);
+                    closeConfirmModal();
+                    showToast('API key regenerated successfully');
+                } else {
+                    showToast(result.message || 'Failed to regenerate key', 'error');
+                }
+            } catch (error) {
+                console.error('Regenerate error:', error);
+                showToast('Connection error. Please try again.', 'error');
+            } finally {
+                DOM.confirmActionBtn.disabled = false;
+                DOM.confirmActionBtn.textContent = 'Regenerate';
+            }
         });
         
         // Keyboard shortcuts
@@ -275,11 +297,45 @@ sendNotification({
     }
 
     /* ─────────────────────────────────────────────────────────────────
+       Load API Key from Server
+       ───────────────────────────────────────────────────────────────── */
+    async function loadApiKey() {
+        try {
+            // Check for new key from signup
+            const newKey = sessionStorage.getItem('rabbit_new_api_key');
+            if (newKey) {
+                currentApiKey = newKey;
+                DOM.apiKeyDisplay.textContent = maskApiKey(newKey);
+                sessionStorage.removeItem('rabbit_new_api_key');
+                sessionStorage.removeItem('rabbit_user_name');
+                return;
+            }
+            
+            const response = await fetch('/rabbit/API/read/apikey.php', {
+                credentials: 'include'
+            });
+            const result = await response.json();
+            
+            if (result.success && result.data.api_key) {
+                currentApiKey = result.data.api_key;
+                DOM.apiKeyDisplay.textContent = maskApiKey(currentApiKey);
+            } else if (result.data.masked) {
+                DOM.apiKeyDisplay.textContent = result.data.masked;
+            } else {
+                DOM.apiKeyDisplay.textContent = 'No API key - regenerate below';
+            }
+        } catch (error) {
+            console.error('Failed to load API key:', error);
+            DOM.apiKeyDisplay.textContent = 'Error loading key';
+        }
+    }
+
+    /* ─────────────────────────────────────────────────────────────────
        Initialize
        ───────────────────────────────────────────────────────────────── */
     function init() {
-        // Display masked API key
-        DOM.apiKeyDisplay.textContent = maskApiKey(currentApiKey);
+        // Load API key from server
+        loadApiKey();
         
         // Initialize event listeners
         initEventListeners();

@@ -1,4 +1,9 @@
-<?php require_once __DIR__ . '/../API/config/auth.php'; ?>
+<?php 
+require_once __DIR__ . '/../API/config/auth.php';
+
+$userName = htmlspecialchars($currentUser['name'] ?? '');
+$userEmail = htmlspecialchars($currentUser['email'] ?? '');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,8 +52,8 @@
                             <input type="text" 
                                    class="form-input" 
                                    id="fullName" 
-                                   name="fullName" 
-                                   value="John Doe"
+                                   name="name" 
+                                   value="<?php echo $userName; ?>"
                                    placeholder="Enter your full name">
                             <span class="form-hint">This is how you'll appear across Rabbit</span>
                         </div>
@@ -59,7 +64,7 @@
                                    class="form-input" 
                                    id="email" 
                                    name="email" 
-                                   value="john@example.com"
+                                   value="<?php echo $userEmail; ?>"
                                    placeholder="Enter your email">
                             <span class="form-hint">Used for account notifications and recovery</span>
                         </div>
@@ -75,6 +80,46 @@
                             </button>
                         </div>
                     </form>
+                </div>
+            </section>
+
+            <!-- API Key Section -->
+            <section class="settings-section">
+                <div class="settings-section__header">
+                    <div class="settings-section__icon">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                        </svg>
+                    </div>
+                    <div class="settings-section__title-group">
+                        <h2 class="settings-section__title">API Key</h2>
+                        <p class="settings-section__desc">Manage your API authentication key</p>
+                    </div>
+                </div>
+                
+                <div class="settings-section__content">
+                    <div class="api-key-display">
+                        <div class="api-key-display__info">
+                            <div class="api-key-display__label">Current API Key</div>
+                            <div class="api-key-display__value">
+                                <code id="currentApiKey">Loading...</code>
+                                <button type="button" class="btn-icon" id="copyApiKeyBtn" title="Copy API Key">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <span class="form-hint">Keep this secret! Never expose it in client-side code.</span>
+                        </div>
+                        <button type="button" class="btn btn--secondary" id="regenerateKeyBtn">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <polyline points="23 4 23 10 17 10"/>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                            </svg>
+                            <span>Regenerate Key</span>
+                        </button>
+                    </div>
                 </div>
             </section>
 

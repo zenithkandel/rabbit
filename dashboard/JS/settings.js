@@ -1,12 +1,127 @@
 /* ═══════════════════════════════════════════════════════════════
    RABBIT — Settings Page JavaScript
-   Profile management and danger zone actions
+   Profile management, API key, and danger zone actions
    ═══════════════════════════════════════════════════════════════ */
 
 (function() {
     'use strict';
 
     const { Theme, Toast } = window.Rabbit;
+    
+    // Store for API key
+    let currentApiKey = null;
+
+    /* ─────────────────────────────────────────────────────────────────
+       API Key Controller
+       ───────────────────────────────────────────────────────────────── */
+    const ApiKeyManager = {
+        displayEl: null,
+        copyBtn: null,
+        regenerateBtn: null,
+        
+        init() {
+            this.displayEl = document.getElementById('currentApiKey');
+            this.copyBtn = document.getElementById('copyApiKeyBtn');
+            this.regenerateBtn = document.getElementById('regenerateKeyBtn');
+            
+            if (!this.displayEl) return;
+            
+            this.loadApiKey();
+            this.bindEvents();
+        },
+        
+        async loadApiKey() {
+            try {
+                // Check for new key from signup
+                const newKey = sessionStorage.getItem('rabbit_new_api_key');
+                if (newKey) {
+                    currentApiKey = newKey;
+                    this.displayEl.textContent = this.maskKey(newKey);
+                    sessionStorage.removeItem('rabbit_new_api_key');
+                    sessionStorage.removeItem('rabbit_user_name');
+                    return;
+                }
+                
+                const response = await fetch('/rabbit/API/read/apikey.php', {
+                    credentials: 'include'
+                });
+                const result = await response.json();
+                
+                if (result.success && result.data.api_key) {
+                    currentApiKey = result.data.api_key;
+                    this.displayEl.textContent = this.maskKey(currentApiKey);
+                } else if (result.data.masked) {
+                    this.displayEl.textContent = result.data.masked;
+                } else {
+                    this.displayEl.textContent = 'No API key generated';
+                }
+            } catch (error) {
+                console.error('Failed to load API key:', error);
+                this.displayEl.textContent = 'Error loading key';
+            }
+        },
+        
+        maskKey(key) {
+            if (!key || key.length <= 10) return key || 'N/A';
+            return key.substring(0, 6) + '••••••••••••' + key.substring(key.length - 4);
+        },
+        
+        bindEvents() {
+            if (this.copyBtn) {
+                this.copyBtn.addEventListener('click', () => this.copyKey());
+            }
+            
+            if (this.regenerateBtn) {
+                this.regenerateBtn.addEventListener('click', () => this.confirmRegenerate());
+            }
+        },
+        
+        async copyKey() {
+            if (!currentApiKey) {
+                Toast.error('No API key to copy');
+                return;
+            }
+            
+            try {
+                await navigator.clipboard.writeText(currentApiKey);
+                Toast.success('API key copied to clipboard');
+            } catch (err) {
+                Toast.error('Failed to copy API key');
+            }
+        },
+        
+        confirmRegenerate() {
+            ConfirmModal.open({
+                title: 'Regenerate API Key',
+                description: 'Your current API key will be invalidated immediately. Any apps using the old key will stop working.',
+                phrase: 'REGENERATE',
+                confirmText: 'Regenerate Key',
+                action: () => this.regenerateKey()
+            });
+        },
+        
+        async regenerateKey() {
+            try {
+                const response = await fetch('/rabbit/API/update/apikey.php', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentApiKey = result.data.api_key;
+                    this.displayEl.textContent = this.maskKey(currentApiKey);
+                    Toast.success('API key regenerated successfully');
+                } else {
+                    Toast.error(result.message || 'Failed to regenerate API key');
+                }
+            } catch (error) {
+                console.error('Regenerate error:', error);
+                Toast.error('Connection error. Please try again.');
+            }
+        }
+    };
 
     /* ─────────────────────────────────────────────────────────────────
        Profile Form Controller
@@ -21,21 +136,7 @@
             
             if (!this.form) return;
             
-            this.loadSavedData();
             this.bindEvents();
-        },
-        
-        loadSavedData() {
-            // Load saved profile from localStorage
-            const savedName = localStorage.getItem('rabbit_user_name');
-            const savedEmail = localStorage.getItem('rabbit_user_email');
-            
-            if (savedName) {
-                document.getElementById('fullName').value = savedName;
-            }
-            if (savedEmail) {
-                document.getElementById('email').value = savedEmail;
-            }
         },
         
         bindEvents() {
@@ -45,13 +146,13 @@
             });
         },
         
-        save() {
+        async save() {
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
             
             // Basic validation
-            if (!fullName) {
-                Toast.error('Please enter your full name');
+            if (!fullName || fullName.length < 2) {
+                Toast.error('Name must be at least 2 characters');
                 return;
             }
             
@@ -60,12 +161,51 @@
                 return;
             }
             
-            // Save to localStorage
-            localStorage.setItem('rabbit_user_name', fullName);
-            localStorage.setItem('rabbit_user_email', email);
+            // Disable button
+            this.saveBtn.disabled = true;
+            const originalHTML = this.saveBtn.innerHTML;
+            this.saveBtn.innerHTML = '<span>Saving...</span>';
             
-            // Show success
-            Toast.success('Profile updated successfully');
+            try {
+                const response = await fetch('/rabbit/API/update/user.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        name: fullName,
+                        email: email
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Toast.success('Profile updated successfully');
+                    
+                    // Update parent frame if exists
+                    if (window.parent !== window) {
+                        window.parent.postMessage({ 
+                            type: 'userUpdated', 
+                            user: result.data.user 
+                        }, '*');
+                    }
+                } else {
+                    if (result.errors) {
+                        const firstError = Object.values(result.errors)[0];
+                        Toast.error(firstError);
+                    } else {
+                        Toast.error(result.message || 'Failed to update profile');
+                    }
+                }
+            } catch (error) {
+                console.error('Save error:', error);
+                Toast.error('Connection error. Please try again.');
+            } finally {
+                this.saveBtn.disabled = false;
+                this.saveBtn.innerHTML = originalHTML;
+            }
         },
         
         isValidEmail(email) {
@@ -208,42 +348,72 @@
         },
         
         resetData() {
-            // Clear all app-related data from localStorage
-            const keysToRemove = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('rabbit_app') || key.startsWith('rabbit_notif')) {
-                    keysToRemove.push(key);
+            this.doResetData();
+        },
+        
+        async doResetData() {
+            try {
+                const response = await fetch('/rabbit/API/delete/userdata.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        confirmation: 'RESET'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Toast.success('All data has been reset successfully');
+                } else {
+                    Toast.error(result.message || 'Failed to reset data');
                 }
+            } catch (error) {
+                console.error('Reset error:', error);
+                Toast.error('Connection error. Please try again.');
             }
-            keysToRemove.forEach(key => localStorage.removeItem(key));
-            
-            // Clear sessionStorage
-            sessionStorage.clear();
-            
-            Toast.success('All data has been reset successfully');
         },
         
         deleteAccount() {
-            // Clear all Rabbit data
-            const keysToRemove = [];
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key.startsWith('rabbit_')) {
-                    keysToRemove.push(key);
+            this.doDeleteAccount();
+        },
+        
+        async doDeleteAccount() {
+            try {
+                const response = await fetch('/rabbit/API/delete/user.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        confirmation: 'DELETE'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    Toast.success('Account deleted. Redirecting...');
+                    
+                    // Clear local storage
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    
+                    // Redirect to landing page
+                    setTimeout(() => {
+                        window.top.location.href = '/rabbit/index.php';
+                    }, 1500);
+                } else {
+                    Toast.error(result.message || 'Failed to delete account');
                 }
+            } catch (error) {
+                console.error('Delete error:', error);
+                Toast.error('Connection error. Please try again.');
             }
-            keysToRemove.forEach(key => localStorage.removeItem(key));
-            
-            // Clear sessionStorage
-            sessionStorage.clear();
-            
-            Toast.success('Account deleted. Redirecting...');
-            
-            // Redirect to homepage after a brief delay
-            setTimeout(() => {
-                window.top.location.href = '../index.php';
-            }, 1500);
         }
     };
 
@@ -252,6 +422,7 @@
        ───────────────────────────────────────────────────────────────── */
     function init() {
         Theme.init();
+        ApiKeyManager.init();
         ProfileForm.init();
         ConfirmModal.init();
         DangerZone.init();
