@@ -194,20 +194,126 @@
         },
         
         async handleSignUp(formData) {
+            const name = formData.get('name');
             const email = formData.get('email');
             const password = formData.get('password');
+            const confirmPassword = formData.get('confirm_password');
             
-            // Simulate API call
             const submitBtn = document.querySelector('#signup-form .btn--primary');
+            const originalText = submitBtn.textContent;
+            
+            // Clear previous errors
+            this.clearFormErrors('signup-form');
+            
+            // Client-side validation
+            const errors = {};
+            
+            if (!name || name.trim().length < 2) {
+                errors.name = 'Name must be at least 2 characters';
+            }
+            
+            if (!email || !this.isValidEmail(email)) {
+                errors.email = 'Please enter a valid email address';
+            }
+            
+            if (!password || password.length < 8) {
+                errors.password = 'Password must be at least 8 characters';
+            }
+            
+            if (password !== confirmPassword) {
+                errors.confirm_password = 'Passwords do not match';
+            }
+            
+            if (Object.keys(errors).length > 0) {
+                this.showFormErrors('signup-form', errors);
+                return;
+            }
+            
+            // Disable button and show loading state
             submitBtn.disabled = true;
             submitBtn.textContent = 'Creating account...';
             
-            setTimeout(() => {
-                Toast.success('Account created! Check your email for verification.');
+            try {
+                const response = await fetch('/rabbit/API/signup.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name.trim(),
+                        email: email.trim(),
+                        password: password,
+                        confirm_password: confirmPassword
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Store API key temporarily for display
+                    sessionStorage.setItem('rabbit_new_api_key', result.data.api_key);
+                    sessionStorage.setItem('rabbit_user_name', result.data.user.name);
+                    
+                    Toast.success('Account created! Redirecting to dashboard...');
+                    this.close();
+                    
+                    // Redirect to dashboard after short delay
+                    setTimeout(() => {
+                        window.location.href = '/rabbit/dashboard/';
+                    }, 1500);
+                } else {
+                    // Show validation errors from server
+                    if (result.errors) {
+                        this.showFormErrors('signup-form', result.errors);
+                    }
+                    Toast.error(result.message || 'Signup failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                Toast.error('Connection error. Please check your internet and try again.');
+            } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Create Account';
-                this.close();
-            }, 1500);
+                submitBtn.textContent = originalText;
+            }
+        },
+        
+        isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        },
+        
+        clearFormErrors(formId) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            
+            form.querySelectorAll('.form-error').forEach(el => el.remove());
+            form.querySelectorAll('.input--error').forEach(el => el.classList.remove('input--error'));
+        },
+        
+        showFormErrors(formId, errors) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            
+            Object.entries(errors).forEach(([field, message]) => {
+                const input = form.querySelector(`[name="${field}"]`);
+                if (input) {
+                    input.classList.add('input--error');
+                    
+                    // Create error message element
+                    const errorEl = document.createElement('span');
+                    errorEl.className = 'form-error';
+                    errorEl.textContent = message;
+                    
+                    // Insert after input
+                    input.parentNode.appendChild(errorEl);
+                }
+            });
+            
+            // Focus first error field
+            const firstError = form.querySelector('.input--error');
+            if (firstError) {
+                firstError.focus();
+            }
         }
     };
 
