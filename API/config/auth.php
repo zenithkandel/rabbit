@@ -9,11 +9,34 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Include database for API key check
+require_once __DIR__ . '/database.php';
+
 /**
  * Check if user is logged in
  */
 function isLoggedIn(): bool {
     return isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true && isset($_SESSION['user_id']);
+}
+
+/**
+ * Check if user has an API key generated
+ */
+function hasApiKey(): bool {
+    if (!isLoggedIn()) {
+        return false;
+    }
+    
+    try {
+        $db = Database::getInstance()->getConnection();
+        $stmt = $db->prepare("SELECT api_key_hash FROM users WHERE id = :id LIMIT 1");
+        $stmt->execute(['id' => $_SESSION['user_id']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $user && !empty($user['api_key_hash']);
+    } catch (Exception $e) {
+        return false;
+    }
 }
 
 /**
@@ -28,7 +51,8 @@ function getCurrentUser(): ?array {
         'id' => $_SESSION['user_id'] ?? null,
         'email' => $_SESSION['user_email'] ?? null,
         'name' => $_SESSION['user_name'] ?? null,
-        'login_time' => $_SESSION['login_time'] ?? null
+        'login_time' => $_SESSION['login_time'] ?? null,
+        'has_api_key' => hasApiKey()
     ];
 }
 

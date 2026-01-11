@@ -32,31 +32,27 @@
             <div class="guide-section__header">
                 <span class="guide-section__step">1</span>
                 <div>
-                    <h2 class="guide-section__title">Get Your API Key</h2>
-                    <p class="guide-section__desc">Your API key authenticates requests to the Rabbit API</p>
+                    <h2 class="guide-section__title">Your API Key</h2>
+                    <p class="guide-section__desc">Use the API key you saved when you generated it</p>
                 </div>
             </div>
             <div class="guide-section__content">
                 <div class="api-key-box">
-                    <div class="api-key-box__label">Your API Key</div>
-                    <div class="api-key-box__value">
-                        <code id="apiKeyDisplay">rb_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxx</code>
-                        <button class="btn-copy" id="copyApiKey" title="Copy API Key">
-                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                            </svg>
-                        </button>
+                    <div class="api-key-box__info">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="16" x2="12" y2="12"/>
+                            <line x1="12" y1="8" x2="12.01" y2="8"/>
+                        </svg>
+                        <div>
+                            <p class="api-key-box__text">Your API key was shown only once when you generated it. Paste it in your code to authenticate requests.</p>
+                            <p class="api-key-box__hint">Don't have it? <a href="settings.php" class="guide-link" data-page="settings.php">Regenerate in Settings</a> (this will invalidate your current key).</p>
+                        </div>
                     </div>
-                    <p class="api-key-box__hint">Keep this secret! Never expose it in client-side code.</p>
+                    <div class="api-key-box__example">
+                        <code>Authorization: Bearer <span class="api-key-placeholder">rb_live_your_api_key_here</span></code>
+                    </div>
                 </div>
-                <button class="btn btn--ghost" id="regenerateKey">
-                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-                        <polyline points="23 4 23 10 17 10"/>
-                        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-                    </svg>
-                    Regenerate Key
-                </button>
             </div>
         </section>
 
@@ -317,39 +313,6 @@
                 </p>
             </div>
         </section>
-    </div>
-
-    <!-- Confirm Modal for Regenerate Key -->
-    <div class="modal modal--sm" id="confirmModal">
-        <div class="modal__backdrop"></div>
-        <div class="modal__container">
-            <div class="modal__header">
-                <h2 class="modal__title">Regenerate API Key</h2>
-                <button class="modal__close" id="confirmClose">
-                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-                        <line x1="18" y1="6" x2="6" y2="18"/>
-                        <line x1="6" y1="6" x2="18" y2="18"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="modal__body">
-                <div class="confirm-content">
-                    <div class="confirm-icon confirm-icon--warning">
-                        <svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" stroke-width="2" fill="none">
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                            <line x1="12" y1="9" x2="12" y2="13"/>
-                            <line x1="12" y1="17" x2="12.01" y2="17"/>
-                        </svg>
-                    </div>
-                    <p class="confirm-message">Are you sure you want to regenerate your API key?</p>
-                    <p class="confirm-warning">Your current key will be invalidated immediately. Any apps using the old key will stop working.</p>
-                </div>
-            </div>
-            <div class="modal__footer">
-                <button type="button" class="btn btn--ghost" id="confirmCancelBtn">Cancel</button>
-                <button type="button" class="btn btn--primary" id="confirmActionBtn">Regenerate</button>
-            </div>
-        </div>
     </div>
 
     <!-- Toast Container -->

@@ -91,35 +91,31 @@ try {
         ]);
     }
     
-    // Generate user data
+    // Generate user data (no API key on signup - user generates it later)
     $userId = generateUUID();
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-    $apiKey = generateApiKey();
-    $apiKeyHash = hashApiKey($apiKey);
     
-    // Insert new user
+    // Insert new user without API key
     $stmt = $db->prepare("
         INSERT INTO users (id, email, name, password_hash, api_key_hash, created_at, updated_at)
-        VALUES (:id, :email, :name, :password_hash, :api_key_hash, NOW(), NOW())
+        VALUES (:id, :email, :name, :password_hash, NULL, NOW(), NOW())
     ");
     
     $stmt->execute([
         'id' => $userId,
         'email' => $email,
         'name' => $name,
-        'password_hash' => $passwordHash,
-        'api_key_hash' => $apiKeyHash
+        'password_hash' => $passwordHash
     ]);
     
-    // Return success response with API key (only shown once!)
+    // Return success response (no API key - user must generate from Settings)
     successResponse('Account created successfully', [
         'user' => [
             'id' => $userId,
             'name' => $name,
             'email' => $email
         ],
-        'api_key' => $apiKey,
-        'note' => 'Save your API key securely. It will only be shown once.'
+        'note' => 'Welcome! Generate your API key from Settings to start integrating.'
     ], 201);
     
 } catch (PDOException $e) {

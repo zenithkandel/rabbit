@@ -9,11 +9,6 @@
     'use strict';
 
     /* ─────────────────────────────────────────────────────────────────
-       API Key State
-       ───────────────────────────────────────────────────────────────── */
-    let currentApiKey = null;
-
-    /* ─────────────────────────────────────────────────────────────────
        Code Examples
        ───────────────────────────────────────────────────────────────── */
     const CODE_EXAMPLES = {
@@ -86,11 +81,6 @@ sendNotification({
        DOM Elements
        ───────────────────────────────────────────────────────────────── */
     const DOM = {
-        // API Key
-        apiKeyDisplay: document.getElementById('apiKeyDisplay'),
-        copyApiKey: document.getElementById('copyApiKey'),
-        regenerateKey: document.getElementById('regenerateKey'),
-        
         // Code tabs
         codeTabs: document.querySelectorAll('.code-tab'),
         codeBlocks: document.querySelectorAll('.code-block[data-lang]'),
@@ -98,32 +88,9 @@ sendNotification({
         // Copy buttons
         copyButtons: document.querySelectorAll('.btn-copy[data-copy]'),
         
-        // Modal
-        confirmModal: document.getElementById('confirmModal'),
-        confirmClose: document.getElementById('confirmClose'),
-        confirmCancelBtn: document.getElementById('confirmCancelBtn'),
-        confirmActionBtn: document.getElementById('confirmActionBtn'),
-        
         // Toast
         toastContainer: document.getElementById('toastContainer')
     };
-
-    /* ─────────────────────────────────────────────────────────────────
-       Utility Functions
-       ───────────────────────────────────────────────────────────────── */
-    function generateApiKey() {
-        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        let key = 'rb_live_';
-        for (let i = 0; i < 32; i++) {
-            key += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        return key;
-    }
-
-    function maskApiKey(key) {
-        if (key.length <= 16) return key;
-        return key.substring(0, 12) + '••••••••••••••••••••' + key.substring(key.length - 4);
-    }
 
     /* ─────────────────────────────────────────────────────────────────
        Toast Notifications
@@ -184,17 +151,6 @@ sendNotification({
     }
 
     /* ─────────────────────────────────────────────────────────────────
-       Modal Management
-       ───────────────────────────────────────────────────────────────── */
-    function openConfirmModal() {
-        DOM.confirmModal.classList.add('is-open');
-    }
-
-    function closeConfirmModal() {
-        DOM.confirmModal.classList.remove('is-open');
-    }
-
-    /* ─────────────────────────────────────────────────────────────────
        Tab Switching
        ───────────────────────────────────────────────────────────────── */
     function switchTab(lang) {
@@ -213,15 +169,6 @@ sendNotification({
        Event Listeners
        ───────────────────────────────────────────────────────────────── */
     function initEventListeners() {
-        // Copy API key
-        DOM.copyApiKey.addEventListener('click', () => {
-            copyToClipboard(currentApiKey, DOM.copyApiKey);
-            showToast('API key copied to clipboard');
-        });
-        
-        // Regenerate key button
-        DOM.regenerateKey.addEventListener('click', openConfirmModal);
-        
         // Tab switching
         DOM.codeTabs.forEach(tab => {
             tab.addEventListener('click', () => {
@@ -241,48 +188,6 @@ sendNotification({
             });
         });
         
-        // Modal close
-        DOM.confirmClose.addEventListener('click', closeConfirmModal);
-        DOM.confirmCancelBtn.addEventListener('click', closeConfirmModal);
-        DOM.confirmModal.querySelector('.modal__backdrop').addEventListener('click', closeConfirmModal);
-        
-        // Confirm regenerate
-        DOM.confirmActionBtn.addEventListener('click', async () => {
-            DOM.confirmActionBtn.disabled = true;
-            DOM.confirmActionBtn.textContent = 'Regenerating...';
-            
-            try {
-                const response = await fetch('/rabbit/API/update/apikey.php', {
-                    method: 'POST',
-                    credentials: 'include'
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    currentApiKey = result.data.api_key;
-                    DOM.apiKeyDisplay.textContent = maskApiKey(currentApiKey);
-                    closeConfirmModal();
-                    showToast('API key regenerated successfully');
-                } else {
-                    showToast(result.message || 'Failed to regenerate key', 'error');
-                }
-            } catch (error) {
-                console.error('Regenerate error:', error);
-                showToast('Connection error. Please try again.', 'error');
-            } finally {
-                DOM.confirmActionBtn.disabled = false;
-                DOM.confirmActionBtn.textContent = 'Regenerate';
-            }
-        });
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && DOM.confirmModal.classList.contains('is-open')) {
-                closeConfirmModal();
-            }
-        });
-        
         // Handle app link navigation (for parent iframe communication)
         document.querySelectorAll('[data-page]').forEach(link => {
             link.addEventListener('click', (e) => {
@@ -297,46 +202,9 @@ sendNotification({
     }
 
     /* ─────────────────────────────────────────────────────────────────
-       Load API Key from Server
-       ───────────────────────────────────────────────────────────────── */
-    async function loadApiKey() {
-        try {
-            // Check for new key from signup
-            const newKey = sessionStorage.getItem('rabbit_new_api_key');
-            if (newKey) {
-                currentApiKey = newKey;
-                DOM.apiKeyDisplay.textContent = maskApiKey(newKey);
-                sessionStorage.removeItem('rabbit_new_api_key');
-                sessionStorage.removeItem('rabbit_user_name');
-                return;
-            }
-            
-            const response = await fetch('/rabbit/API/read/apikey.php', {
-                credentials: 'include'
-            });
-            const result = await response.json();
-            
-            if (result.success && result.data.api_key) {
-                currentApiKey = result.data.api_key;
-                DOM.apiKeyDisplay.textContent = maskApiKey(currentApiKey);
-            } else if (result.data.masked) {
-                DOM.apiKeyDisplay.textContent = result.data.masked;
-            } else {
-                DOM.apiKeyDisplay.textContent = 'No API key - regenerate below';
-            }
-        } catch (error) {
-            console.error('Failed to load API key:', error);
-            DOM.apiKeyDisplay.textContent = 'Error loading key';
-        }
-    }
-
-    /* ─────────────────────────────────────────────────────────────────
        Initialize
        ───────────────────────────────────────────────────────────────── */
     function init() {
-        // Load API key from server
-        loadApiKey();
-        
         // Initialize event listeners
         initEventListeners();
     }

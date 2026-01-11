@@ -3,6 +3,7 @@ require_once __DIR__ . '/../API/config/auth.php';
 
 $userName = htmlspecialchars($currentUser['name'] ?? '');
 $userEmail = htmlspecialchars($currentUser['email'] ?? '');
+$hasApiKey = $currentUser['has_api_key'] ?? false;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -98,28 +99,61 @@ $userEmail = htmlspecialchars($currentUser['email'] ?? '');
                 </div>
                 
                 <div class="settings-section__content">
-                    <div class="api-key-display">
-                        <div class="api-key-display__info">
-                            <div class="api-key-display__label">Current API Key</div>
-                            <div class="api-key-display__value">
-                                <code id="currentApiKey">Loading...</code>
-                                <button type="button" class="btn-icon" id="copyApiKeyBtn" title="Copy API Key">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                                    </svg>
-                                </button>
-                            </div>
-                            <span class="form-hint">Keep this secret! Never expose it in client-side code.</span>
+                    <?php if ($hasApiKey): ?>
+                    <!-- Has API Key - Show status and regenerate option -->
+                    <div class="api-key-status">
+                        <div class="api-key-status__badge api-key-status__badge--active">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            API Key Active
+                        </div>
+                        <p class="api-key-status__desc">Your API key is configured and ready to use. If you need to regenerate it, your old key will be immediately invalidated.</p>
+                        <div class="api-key-status__warning">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            <span>Remember: API keys can only be viewed once when generated. Make sure to save it securely.</span>
                         </div>
                         <button type="button" class="btn btn--secondary" id="regenerateKeyBtn">
                             <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
                                 <polyline points="23 4 23 10 17 10"/>
                                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
                             </svg>
-                            <span>Regenerate Key</span>
+                            <span>Regenerate API Key</span>
                         </button>
                     </div>
+                    <?php else: ?>
+                    <!-- No API Key - Show generate prompt -->
+                    <div class="api-key-status">
+                        <div class="api-key-status__badge api-key-status__badge--inactive">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            No API Key
+                        </div>
+                        <p class="api-key-status__desc">You haven't generated an API key yet. Create one to start sending notifications from your applications.</p>
+                        <div class="api-key-status__warning">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            <span>Important: Your API key will only be shown ONCE after generation. Make sure to copy and save it securely!</span>
+                        </div>
+                        <button type="button" class="btn btn--primary" id="generateKeyBtn">
+                            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                                <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                            </svg>
+                            <span>Generate API Key</span>
+                        </button>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </section>
 
@@ -211,6 +245,50 @@ $userEmail = htmlspecialchars($currentUser['email'] ?? '');
                 <button class="btn btn--danger" id="modalConfirmBtn" disabled>
                     <span id="modalConfirmText">Confirm</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- API Key Success Modal -->
+    <div class="modal-overlay" id="apiKeyModal">
+        <div class="modal modal--success">
+            <div class="modal__header">
+                <div class="modal__icon modal__icon--success">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <h3 class="modal__title">API Key Generated!</h3>
+                <p class="modal__desc">Your new API key has been created. Copy it now — you won't be able to see it again.</p>
+            </div>
+            
+            <div class="modal__body">
+                <div class="api-key-reveal">
+                    <label class="form-label">Your API Key</label>
+                    <div class="api-key-reveal__box">
+                        <code class="api-key-reveal__value" id="newApiKeyValue">rb_live_xxxx...</code>
+                        <button type="button" class="btn btn--primary btn--sm" id="copyNewKeyBtn">
+                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="api-key-reveal__warning">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <strong>This is the only time you'll see this key!</strong> Store it in a secure location like a password manager or environment variable.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal__footer">
+                <button class="btn btn--secondary" id="apiKeyModalClose">I've Saved My Key</button>
             </div>
         </div>
     </div>

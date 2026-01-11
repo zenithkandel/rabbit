@@ -1,7 +1,7 @@
 <?php
 /* ═══════════════════════════════════════════════════════════════════════════
-   RABBIT — Get API Key
-   Returns the user's actual API key (requires re-generation if lost)
+   RABBIT — Check API Key Status
+   Returns whether the user has an API key configured (not the key itself)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 // Start session
@@ -30,58 +30,24 @@ $userId = $_SESSION['user_id'];
 try {
     $db = Database::getInstance()->getConnection();
     
-    // Check if user has an API key stored in session (only available right after generation)
-    // Note: We store the plain API key temporarily in session after generation
-    // This is the only time we can show it
-    
-    if (isset($_SESSION['api_key_plain'])) {
-        $apiKey = $_SESSION['api_key_plain'];
-        $masked = maskApiKey($apiKey);
-        
-        successResponse('API key retrieved', [
-            'api_key' => $apiKey,
-            'masked' => $masked,
-            'is_new' => true
-        ]);
-    }
-    
-    // If no plain key in session, return masked version only
+    // Check if user has an API key
     $stmt = $db->prepare("SELECT api_key_hash FROM users WHERE id = :id LIMIT 1");
     $stmt->execute(['id' => $userId]);
     $user = $stmt->fetch();
     
-    if (!$user || empty($user['api_key_hash'])) {
-        successResponse('No API key found', [
-            'api_key' => null,
-            'masked' => null,
-            'is_new' => false
-        ]);
-    }
+    $hasApiKey = $user && !empty($user['api_key_hash']);
     
-    // We can't reverse the hash, so return a placeholder
-    successResponse('API key exists but cannot be displayed', [
-        'api_key' => null,
-        'masked' => 'rb_••••••••••••••••••••',
-        'is_new' => false,
-        'note' => 'API key is hashed and cannot be retrieved. Regenerate if needed.'
+    successResponse('API key status retrieved', [
+        'has_api_key' => $hasApiKey,
+        'note' => $hasApiKey 
+            ? 'API key is configured. It can only be viewed when generated.' 
+            : 'No API key. Generate one from Settings.'
     ]);
     
 } catch (PDOException $e) {
-    error_log("Get API key error: " . $e->getMessage());
-    errorResponse('Failed to retrieve API key', 500);
+    error_log("Get API key status error: " . $e->getMessage());
+    errorResponse('Failed to check API key status', 500);
 } catch (Exception $e) {
-    error_log("Get API key error: " . $e->getMessage());
+    error_log("Get API key status error: " . $e->getMessage());
     errorResponse('An unexpected error occurred', 500);
-}
-
-/**
- * Mask API key for display
- */
-function maskApiKey(string $key): string {
-    if (strlen($key) <= 10) {
-        return $key;
-    }
-    $prefix = substr($key, 0, 6);
-    $suffix = substr($key, -4);
-    return $prefix . '••••••••••••' . $suffix;
 }

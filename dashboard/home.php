@@ -5,6 +5,7 @@ require_once __DIR__ . '/../API/config/auth.php';
 $firstName = explode(' ', trim($currentUser['name'] ?? 'User'))[0];
 $firstName = htmlspecialchars($firstName);
 $userId = $currentUser['id'];
+$hasApiKey = $currentUser['has_api_key'] ?? false;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,6 +23,68 @@ $userId = $currentUser['id'];
     <link rel="stylesheet" href="../CSS/global.css">
     <link rel="stylesheet" href="CSS/dashboard.css">
     <style>
+        /* Alert Banner */
+        .alert-banner {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-4) var(--space-5);
+            background: #FEF3C7;
+            border: 2px solid #F59E0B;
+            margin-bottom: var(--space-6);
+        }
+        
+        [data-theme="dark"] .alert-banner {
+            background: rgba(245, 158, 11, 0.15);
+            border-color: #F59E0B;
+        }
+        
+        .alert-banner__icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            color: #D97706;
+        }
+        
+        .alert-banner__content {
+            flex: 1;
+        }
+        
+        .alert-banner__title {
+            font-weight: 600;
+            color: #92400E;
+            margin-bottom: var(--space-1);
+        }
+        
+        [data-theme="dark"] .alert-banner__title {
+            color: #FCD34D;
+        }
+        
+        .alert-banner__text {
+            font-size: var(--text-sm);
+            color: #A16207;
+        }
+        
+        [data-theme="dark"] .alert-banner__text {
+            color: #FDE68A;
+        }
+        
+        .alert-banner__action {
+            padding: var(--space-2) var(--space-4);
+            background: #D97706;
+            color: white;
+            font-size: var(--text-sm);
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: background var(--duration-fast);
+        }
+        
+        .alert-banner__action:hover {
+            background: #B45309;
+        }
+        
         /* Cleaner Home Layout */
         .home {
             min-height: 100vh;
@@ -264,61 +327,49 @@ $userId = $currentUser['id'];
             margin-bottom: var(--space-3);
         }
         
-        .api-card__key {
+        .api-status {
             display: flex;
             align-items: center;
             gap: var(--space-3);
             padding: var(--space-3) var(--space-4);
-            background: var(--bg-primary);
-            border: var(--border-thin) solid var(--border-light);
+            font-weight: 500;
+            margin-bottom: var(--space-3);
         }
         
-        .api-card__key-value {
-            flex: 1;
-            font-family: var(--font-mono);
+        .api-status--active {
+            background: rgba(34, 197, 94, 0.1);
+            color: #16A34A;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .api-status--inactive {
+            background: rgba(245, 158, 11, 0.1);
+            color: #D97706;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .api-card__hint {
             font-size: var(--text-sm);
-            color: var(--text-primary);
-        }
-        
-        .api-card__key-copy {
-            padding: var(--space-1) var(--space-2);
-            font-family: var(--font-mono);
-            font-size: var(--text-xs);
             color: var(--text-muted);
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: color var(--duration-fast);
+            margin-bottom: var(--space-4);
+            line-height: var(--leading-relaxed);
         }
         
-        .api-card__key-copy:hover {
-            color: var(--text-primary);
-        }
-        
-        .api-card__usage {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .api-card__btn {
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            background: var(--bg-primary);
+            border: var(--border-medium) solid var(--border-color);
             font-size: var(--text-sm);
-            margin-bottom: var(--space-2);
-        }
-        
-        .api-card__usage-label { color: var(--text-muted); }
-        .api-card__usage-value { 
-            font-family: var(--font-mono);
             font-weight: 500;
             color: var(--text-primary);
+            cursor: pointer;
+            transition: border-color var(--duration-fast), background var(--duration-fast);
         }
         
-        .api-card__bar {
-            height: 4px;
-            background: var(--bg-primary);
-            border: var(--border-thin) solid var(--border-light);
-        }
-        
-        .api-card__bar-fill {
-            height: 100%;
-            background: var(--accent-secondary);
+        .api-card__btn:hover {
+            border-color: var(--text-primary);
+            background: var(--bg-elevated);
         }
         
         /* Apps Mini List */
@@ -456,6 +507,24 @@ $userId = $currentUser['id'];
 </head>
 <body>
     <div class="home">
+        <?php if (!$hasApiKey): ?>
+        <!-- API Key Alert Banner -->
+        <div class="alert-banner" id="apiKeyAlert">
+            <svg class="alert-banner__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            <div class="alert-banner__content">
+                <div class="alert-banner__title">API Key Required</div>
+                <div class="alert-banner__text">You haven't generated an API key yet. Create one to start sending notifications to Rabbit.</div>
+            </div>
+            <button class="alert-banner__action" onclick="window.parent.Dashboard.navigate('settings.php');">
+                Generate API Key
+            </button>
+        </div>
+        <?php endif; ?>
+
         <!-- Welcome Header -->
         <header class="home__header">
             <h1 class="home__greeting" data-user-name="<?php echo $firstName; ?>">Welcome back, <?php echo $firstName; ?></h1>
@@ -592,14 +661,33 @@ $userId = $currentUser['id'];
 
             <!-- Sidebar -->
             <div class="sidebar-stack">
-                <!-- API Key -->
+                <!-- API Key Status -->
                 <div class="panel">
                     <div class="api-card">
-                        <div class="api-card__label">Your API Key</div>
-                        <div class="api-card__key">
-                            <span class="api-card__key-value" id="apiKeyDisplay">Loading...</span>
-                            <button class="api-card__key-copy" id="copyApiKeyBtn">Copy</button>
+                        <div class="api-card__label">API Key Status</div>
+                        <?php if ($hasApiKey): ?>
+                        <div class="api-status api-status--active">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            <span>API Key Active</span>
                         </div>
+                        <p class="api-card__hint">Your API key is set up and ready to use. Manage it in Settings.</p>
+                        <?php else: ?>
+                        <div class="api-status api-status--inactive">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="12" y1="8" x2="12" y2="12"/>
+                                <line x1="12" y1="16" x2="12.01" y2="16"/>
+                            </svg>
+                            <span>No API Key</span>
+                        </div>
+                        <p class="api-card__hint">Generate an API key in Settings to start integrating.</p>
+                        <?php endif; ?>
+                        <button class="api-card__btn" onclick="window.parent.Dashboard.navigate('settings.php');">
+                            <?php echo $hasApiKey ? 'Manage API Key' : 'Generate API Key'; ?>
+                        </button>
                     </div>
                 </div>
 
@@ -642,73 +730,6 @@ $userId = $currentUser['id'];
     </div>
 
     <script>
-        // Store for API key (loaded from server)
-        let currentApiKey = null;
-        
-        // Load API key on page load
-        async function loadApiKey() {
-            try {
-                // Check if there's a new API key in sessionStorage (from signup)
-                const newKey = sessionStorage.getItem('rabbit_new_api_key');
-                if (newKey) {
-                    currentApiKey = newKey;
-                    displayApiKey(newKey);
-                    // Clear from sessionStorage after displaying
-                    sessionStorage.removeItem('rabbit_new_api_key');
-                    sessionStorage.removeItem('rabbit_user_name');
-                    return;
-                }
-                
-                const response = await fetch('/rabbit/API/read/apikey.php', {
-                    credentials: 'include'
-                });
-                const result = await response.json();
-                
-                if (result.success && result.data.api_key) {
-                    currentApiKey = result.data.api_key;
-                    displayApiKey(result.data.api_key);
-                } else if (result.data.masked) {
-                    document.getElementById('apiKeyDisplay').textContent = result.data.masked;
-                } else {
-                    document.getElementById('apiKeyDisplay').textContent = 'No API key';
-                }
-            } catch (error) {
-                console.error('Failed to load API key:', error);
-                document.getElementById('apiKeyDisplay').textContent = 'Error loading key';
-            }
-        }
-        
-        function displayApiKey(key) {
-            const display = document.getElementById('apiKeyDisplay');
-            if (key) {
-                // Show masked version
-                const masked = key.substring(0, 6) + '••••••••••••' + key.substring(key.length - 4);
-                display.textContent = masked;
-            }
-        }
-        
-        // Copy API Key function
-        document.getElementById('copyApiKeyBtn').addEventListener('click', async () => {
-            const btn = document.getElementById('copyApiKeyBtn');
-            
-            if (currentApiKey) {
-                try {
-                    await navigator.clipboard.writeText(currentApiKey);
-                    const originalText = btn.textContent;
-                    btn.textContent = 'Copied!';
-                    setTimeout(() => {
-                        btn.textContent = originalText;
-                    }, 2000);
-                } catch (e) {
-                    btn.textContent = 'Failed';
-                    setTimeout(() => btn.textContent = 'Copy', 2000);
-                }
-            } else {
-                btn.textContent = 'No key';
-                setTimeout(() => btn.textContent = 'Copy', 2000);
-            }
-        });
-
         // Dynamic greeting based on time
         (function() {
             const hour = new Date().getHours();
@@ -725,9 +746,6 @@ $userId = $currentUser['id'];
                 greeting.textContent = greetingText + ', ' + userName;
             }
         })();
-        
-        // Initialize on load
-        loadApiKey();
 
         // Listen for theme changes from parent
         window.addEventListener('message', (e) => {

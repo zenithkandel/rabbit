@@ -318,10 +318,6 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    // Store API key temporarily for display (shown only once)
-                    sessionStorage.setItem('rabbit_new_api_key', result.data.api_key);
-                    sessionStorage.setItem('rabbit_user_name', result.data.user.name);
-                    
                     Toast.success('Account created! Signing you in...');
                     
                     // Now sign in the user via signin API to create session
