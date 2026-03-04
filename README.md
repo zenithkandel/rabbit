@@ -223,7 +223,7 @@ Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md)
 
 ## 📋 Roadmap
 
-- [ ] Push notification support (Web Push API)
+- [ ] Push notification support (Web Push API) 
 - [ ] Email notification channel
 - [ ] Slack/Discord integrations
 - [ ] Notification templates
